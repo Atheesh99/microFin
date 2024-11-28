@@ -5,11 +5,15 @@ class CustomTextWithTextFormField extends StatelessWidget {
     super.key,
     this.icon,
     required this.labeltext,
-    required this.inputext,
+    // required this.inputext,
+    required this.controller,
+    this.validator,
   });
   final String labeltext;
-  final String inputext;
+  // final String inputext;
   final IconData? icon;
+  final TextEditingController controller;
+  final FormFieldValidator<String>? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -31,43 +35,31 @@ class CustomTextWithTextFormField extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          height: screenHeight * 0.05,
-          width: screenWidth * 0.6,
-          decoration: BoxDecoration(
+        Expanded(
+          child: Material(
+            elevation: 7, // Controls the shadow intensity
+            shadowColor: Colors.grey.withOpacity(0.5),
             borderRadius: BorderRadius.circular(5),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                offset: Offset(0, 1),
-                blurRadius: 2.0,
-              ),
-            ],
-          ),
-          child: TextFormField(
-            initialValue: inputext,
-            textAlign: TextAlign.start,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(
-                  color: Colors.white,
-                  width: 1.0,
+            child: TextFormField(
+              validator: validator,
+              controller: controller,
+              textAlign: TextAlign.start,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide.none, // No visible border
+                ),
+                filled: true,
+                fillColor: Colors.white, // Field background color
+                suffixIcon: Icon(icon),
               ),
-              suffixIcon: Icon(icon),
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 12, // Adjust this for vertical padding
-                horizontal: 15, // Adjust this for horizontal padding
+              style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                fontSize: screenWidth * 0.04, // Adjust the text size
               ),
-            ),
-            style: TextStyle(
-              overflow: TextOverflow.ellipsis,
-              fontSize: screenWidth * 0.04, // Adjust the text size
             ),
           ),
         ),

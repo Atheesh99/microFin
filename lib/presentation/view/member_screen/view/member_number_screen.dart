@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:microfin/core/constants/colour.dart';
+import 'package:microfin/presentation/view/member_screen/model/membership_fetch_model.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_details_first.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
@@ -184,7 +187,7 @@ class CustomMiddleMemberDetails extends StatelessWidget {
   }
 }
 
-class CustomheaderWidgetMemberShipNumber extends StatelessWidget {
+class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
   const CustomheaderWidgetMemberShipNumber({
     super.key,
     required this.screenWidth,
@@ -195,12 +198,57 @@ class CustomheaderWidgetMemberShipNumber extends StatelessWidget {
   final double screenHeight;
 
   @override
+  State<CustomheaderWidgetMemberShipNumber> createState() =>
+      _CustomheaderWidgetMemberShipNumberState();
+}
+
+class _CustomheaderWidgetMemberShipNumberState
+    extends State<CustomheaderWidgetMemberShipNumber> {
+  final TextEditingController _membershipNumberController =
+      TextEditingController();
+
+// Function to send the HTTP request
+  Future<void> getMembershipDetails() async {
+    // Create the request object (model)
+    MembershipFetchModel requestModel = MembershipFetchModel(
+      officeID: '3',
+      membershipID: '254',
+      defaultLanguage: '1',
+    );
+
+    // Define headers
+    var headers = {'Content-Type': 'application/json'};
+
+    // Make the POST request
+    try {
+      var response = await http.post(
+        Uri.parse(
+            'http://154.38.175.150:8090/api/members/getMembershipDetails'),
+        headers: headers,
+        body: json.encode(requestModel.toJson()), // Serialize the model to JSON
+      );
+
+      // Check for a successful response
+      if (response.statusCode == 200) {
+        // Process the response body if the request was successful
+        print('Response Body: ${response.body}');
+      } else {
+        // Handle errors or unsuccessful responses
+        print('Error: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Exception: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       // height: 180,
       width: double.infinity,
-      margin: EdgeInsets.all(screenWidth * 0.02),
-      padding: EdgeInsets.all(screenWidth * 0.03),
+      margin: EdgeInsets.all(widget.screenWidth * 0.02),
+      padding: EdgeInsets.all(widget.screenWidth * 0.03),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
@@ -217,7 +265,7 @@ class CustomheaderWidgetMemberShipNumber extends StatelessWidget {
             children: [
               Expanded(
                 child: Container(
-                  height: screenHeight * 0.05,
+                  height: widget.screenHeight * 0.05,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     color: Colors.white,
@@ -230,6 +278,7 @@ class CustomheaderWidgetMemberShipNumber extends StatelessWidget {
                     ],
                   ),
                   child: TextFormField(
+                    controller: _membershipNumberController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.end,
                     style: const TextStyle(
@@ -275,14 +324,14 @@ class CustomheaderWidgetMemberShipNumber extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: screenWidth * 0.05,
+                width: widget.screenWidth * 0.05,
               ),
               Expanded(
                 child: SizedBox(
-                  height: screenHeight * 0.045,
+                  height: widget.screenHeight * 0.045,
                   child: CustomTextButton(
-                    buttonText: "Fetch",
-                    onPressed: () {},
+                    buttonText: 'Fetch',
+                    onPressed: getMembershipDetails,
                   ),
                 ),
               )

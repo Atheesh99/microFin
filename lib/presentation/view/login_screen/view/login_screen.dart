@@ -1,11 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:microfin/core/constants/colour.dart';
+import 'package:microfin/data/repositories/sigin_api.dart';
+import 'package:microfin/presentation/view/member_screen/view/member_details_first.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_number_screen.dart';
+
 import 'package:microfin/presentation/widgets/custom_text_textform_login.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final AuthAPI _authAPI = AuthAPI();
+
+  bool _isLoading = false;
+
+//////Login ////
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Call the login function
+        bool isLoginSuccessful = await _authAPI.login(
+          _usernameController.text.trim(),
+          _passwordController.text.trim(),
+        );
+        print(_usernameController.text);
+        print(_passwordController.text);
+
+        if (isLoginSuccessful) {
+          // Navigate to the next screen if login is successful
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MemberNumber()),
+          );
+        }
+      } catch (e) {
+        // Show an error message on failure
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,31 +118,94 @@ class LoginScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(5)),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const CustomTextWithTextFormField(
-                            labeltext: "Login", inputext: "example@gmamil.com"),
-                        SizedBox(
-                          height: mediaQuery.size.height * 0.03,
-                        ),
-                        const CustomTextWithTextFormField(
-                            labeltext: "Password", inputext: "********"),
-                        SizedBox(
-                          height: mediaQuery.size.height * 0.04,
-                        ),
-                        CustomTextButton(
-                          buttonText: "Login",
-                          onPressed: () {
-                            // Navigate to the next screen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MemberNumber()),
-                            );
-                          },
-                        )
-                      ],
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomTextWithTextFormField(
+                            labeltext: "Login",
+                            // inputext: "example@gmamil.com",
+                            controller: _usernameController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "This field cannot be empty";
+                              }
+                              if (value.length < 3) {
+                                return "Must be at least 3 characters long";
+                              }
+                              if (value.length > 8) {
+                                return "Cannot exceed 8 characters";
+                              }
+
+                              // Check for alphabetic only
+                              if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                                return null; // valid alphabetic input
+                              }
+
+                              // Check for numeric only
+                              if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return null; // valid numeric input
+                              }
+
+                              // Check for alphanumeric (letters and numbers)
+                              if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+                                return null; // valid alphanumeric input
+                              }
+
+                              return "Input must be alphabetic, numeric, or alphanumeric.";
+                            },
+                          ),
+                          SizedBox(
+                            height: mediaQuery.size.height * 0.03,
+                          ),
+                          CustomTextWithTextFormField(
+                            labeltext: "Password",
+                            // inputext: "********",
+                            controller: _passwordController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Password cannot be empty";
+                              }
+                              if (value.length < 4) {
+                                return "Password must be at least 4 characters long";
+                              }
+                              if (value.length > 7) {
+                                return "Password cannot exceed 7 characters";
+                              }
+                              if (value.contains(' ')) {
+                                return "Password cannot contain spaces";
+                              }
+
+                              // Check for alphabetic only (letters)
+                              if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                                return null; // valid alphabetic input
+                              }
+
+                              // Check for numeric only (numbers)
+                              if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return null; // valid numeric input
+                              }
+
+                              // Check for alphanumeric (letters and numbers)
+                              if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+                                return null; // valid alphanumeric input
+                              }
+
+                              return "Password must be alphabetic, numeric, or alphanumeric.";
+                            },
+                          ),
+                          SizedBox(
+                            height: mediaQuery.size.height * 0.04,
+                          ),
+                          _isLoading
+                              ? CircularProgressIndicator()
+                              : CustomTextButton(
+                                  buttonText: "Login",
+                                  onPressed: _login,
+                                )
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -189,7 +189,7 @@ class MemberDetailsScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: screenHeight * 0.062),
+          SizedBox(height: screenHeight * 0.099),
           CustomBottomButtons(
               screenWidth: screenWidth, screenHeight: screenHeight)
         ],
@@ -211,7 +211,7 @@ class CustomBottomButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: screenWidth * 0.3),
+      padding: EdgeInsets.only(top: screenWidth * 0.2),
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.all(screenWidth * 0.01),
