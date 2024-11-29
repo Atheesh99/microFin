@@ -1,9 +1,11 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:microfin/core/constants/colour.dart';
+import 'package:microfin/data/repositories/api.dart';
 import 'package:microfin/data/repositories/sigin_api.dart';
-import 'package:microfin/presentation/view/member_screen/view/member_details_first.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_number_screen.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:microfin/presentation/widgets/custom_text_textform_login.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
@@ -23,33 +25,96 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
 //////Login ////
+
+// Function to convert a string to SHA-256 hash
+  // String convertToSha256(String input) {
+  //   var bytes = utf8.encode(input); // Convert string to bytes
+  //   var digest = sha256.convert(bytes); // Get the SHA-256 hash
+  //   return digest.toString();
+  // }
+  String convertToSha256(String input) {
+    var newvalue = "$input${BaseAPI.hashcode}";
+    if (input.isEmpty) {
+      throw ArgumentError("Input string cannot be empty.");
+    }
+
+    // Convert the input string to a UTF8 encoded list of bytes
+    List<int> bytes = utf8.encode(newvalue);
+
+// Perform the SHA256 hash operation
+    Digest sha256Result = sha256.convert(bytes);
+
+    // Convert the hash bytes to a hexadecimal string
+    return sha256Result.bytes
+        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join()
+        .toUpperCase();
+  }
+
   Future<void> _login() async {
+    String username = _usernameController.text.trim();
+    String password = _passwordController.text.trim();
+
+    // Convert the username and password to SHA-256
+    var hashedUsername = convertToSha256(username);
+    var hashedPassword = convertToSha256(password);
+
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      try {
-        // Call the login function
-        bool isLoginSuccessful = await _authAPI.login(
-          _usernameController.text.trim(),
-          _passwordController.text.trim(),
-        );
-        print(_usernameController.text);
-        print(_passwordController.text);
+      // Get the username and password from controllers
 
-        if (isLoginSuccessful) {
+      print("SHA-256 Hashed Username: $hashedUsername");
+      print("SHA-256 Hashed Password: $hashedPassword");
+
+      // API endpoint URL
+      const String url =
+          'http://154.38.175.150:8090/api/users/validateMobileUser';
+
+      // Prepare the request body
+      final Map<String, String> requestBody = {
+        "LoginID": hashedUsername.toUpperCase(),
+        "Password": hashedPassword.toUpperCase(),
+      };
+
+      try {
+        // Send POST request
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json', // Specify content type as JSON
+          },
+          body: jsonEncode(requestBody), // Encode the request body to JSON
+        );
+
+        // Check the response status
+        if (response.statusCode == 200) {
+          // Decode the response JSON if needed
+          final responseData = jsonDecode(response.body);
+          print("Login successful: $responseData");
+
           // Navigate to the next screen if login is successful
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MemberNumber()),
           );
+        } else {
+          // Show an error message if the login failed
+          print(
+              "Login failed: ${response.statusCode} - ${response.reasonPhrase}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: ${response.reasonPhrase}')),
+          );
         }
       } catch (e) {
-        // Show an error message on failure
+        // Handle exceptions (e.g., network error)
+        print("An error occurred: $e");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: $e')),
         );
       } finally {
+        // Hide the loading indicator once the operation is complete
         setState(() {
           _isLoading = false;
         });

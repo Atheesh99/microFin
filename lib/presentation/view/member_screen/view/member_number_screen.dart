@@ -209,10 +209,11 @@ class _CustomheaderWidgetMemberShipNumberState
 
 // Function to send the HTTP request
   Future<void> getMembershipDetails() async {
+    String membershipNumber = _membershipNumberController.text.trim();
     // Create the request object (model)
-    MembershipFetchModel requestModel = MembershipFetchModel(
+    final membershipData = MembershipFetchModel(
       officeID: '3',
-      membershipID: '254',
+      membershipID: membershipNumber,
       defaultLanguage: '1',
     );
 
@@ -225,7 +226,8 @@ class _CustomheaderWidgetMemberShipNumberState
         Uri.parse(
             'http://154.38.175.150:8090/api/members/getMembershipDetails'),
         headers: headers,
-        body: json.encode(requestModel.toJson()), // Serialize the model to JSON
+        body:
+            json.encode(membershipData.toJson()), // Serialize the model to JSON
       );
 
       // Check for a successful response
