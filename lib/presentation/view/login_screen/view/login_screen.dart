@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Navigate to the next screen if login is successful
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MemberNumber()),
+            MaterialPageRoute(builder: (context) => MemberNumber(loginResponse: responseData,)),
           );
         } else {
           // Show an error message if the login failed
