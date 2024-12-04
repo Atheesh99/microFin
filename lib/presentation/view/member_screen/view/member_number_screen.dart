@@ -119,9 +119,6 @@ class CustomBottomButtons extends StatelessWidget {
               ),
             ),
           ),
-          // SizedBox(
-          //   width: screenWidth * 0.001,
-          // ),
         ],
       ),
     );

@@ -97,14 +97,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Navigate to the next screen if login is successful
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MemberNumber()),
+            MaterialPageRoute(builder: (context) => const MemberNumber()),
           );
         } else {
           // Show an error message if the login failed
           print(
               "Login failed: ${response.statusCode} - ${response.reasonPhrase}");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed: ${response.reasonPhrase}')),
+            const SnackBar(
+                content: Center(child: Text('Enter the Password Correctly'))),
           );
         }
       } catch (e) {
@@ -192,34 +193,34 @@ class _LoginScreenState extends State<LoginScreen> {
                             labeltext: "Login",
                             // inputext: "example@gmamil.com",
                             controller: _usernameController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "This field cannot be empty";
-                              }
-                              if (value.length < 3) {
-                                return "Must be at least 3 characters long";
-                              }
-                              if (value.length > 8) {
-                                return "Cannot exceed 8 characters";
-                              }
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) {
+                            //     return "This field cannot be empty";
+                            //   }
+                            //   if (value.length < 3) {
+                            //     return "Must be at least 3 characters long";
+                            //   }
+                            //   if (value.length > 8) {
+                            //     return "Cannot exceed 8 characters";
+                            //   }
 
-                              // Check for alphabetic only
-                              if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                                return null; // valid alphabetic input
-                              }
+                            //   // Check for alphabetic only
+                            //   if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                            //     return null; // valid alphabetic input
+                            //   }
 
-                              // Check for numeric only
-                              if (RegExp(r'^[0-9]+$').hasMatch(value)) {
-                                return null; // valid numeric input
-                              }
+                            //   // Check for numeric only
+                            //   if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            //     return null; // valid numeric input
+                            //   }
 
-                              // Check for alphanumeric (letters and numbers)
-                              if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-                                return null; // valid alphanumeric input
-                              }
+                            //   // Check for alphanumeric (letters and numbers)
+                            //   if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+                            //     return null; // valid alphanumeric input
+                            //   }
 
-                              return "Input must be alphabetic, numeric, or alphanumeric.";
-                            },
+                            //   return "Input must be alphabetic, numeric, or alphanumeric.";
+                            // },
                           ),
                           SizedBox(
                             height: mediaQuery.size.height * 0.03,
@@ -228,43 +229,43 @@ class _LoginScreenState extends State<LoginScreen> {
                             labeltext: "Password",
                             // inputext: "********",
                             controller: _passwordController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Password cannot be empty";
-                              }
-                              if (value.length < 4) {
-                                return "Password must be at least 4 characters long";
-                              }
-                              if (value.length > 7) {
-                                return "Password cannot exceed 7 characters";
-                              }
-                              if (value.contains(' ')) {
-                                return "Password cannot contain spaces";
-                              }
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) {
+                            //     return "Password cannot be empty";
+                            //   }
+                            //   if (value.length < 4) {
+                            //     return "Password must be at least 4 characters long";
+                            //   }
+                            //   if (value.length > 7) {
+                            //     return "Password cannot exceed 7 characters";
+                            //   }
+                            //   if (value.contains(' ')) {
+                            //     return "Password cannot contain spaces";
+                            //   }
 
-                              // Check for alphabetic only (letters)
-                              if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                                return null; // valid alphabetic input
-                              }
+                            //   // Check for alphabetic only (letters)
+                            //   if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                            //     return null; // valid alphabetic input
+                            //   }
 
-                              // Check for numeric only (numbers)
-                              if (RegExp(r'^[0-9]+$').hasMatch(value)) {
-                                return null; // valid numeric input
-                              }
+                            //   // Check for numeric only (numbers)
+                            //   if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            //     return null; // valid numeric input
+                            //   }
 
-                              // Check for alphanumeric (letters and numbers)
-                              if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-                                return null; // valid alphanumeric input
-                              }
+                            //   // Check for alphanumeric (letters and numbers)
+                            //   if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+                            //     return null; // valid alphanumeric input
+                            //   }
 
-                              return "Password must be alphabetic, numeric, or alphanumeric.";
-                            },
+                            //   return "Password must be alphabetic, numeric, or alphanumeric.";
+                            // },
                           ),
                           SizedBox(
                             height: mediaQuery.size.height * 0.04,
                           ),
                           _isLoading
-                              ? CircularProgressIndicator()
+                              ? const CircularProgressIndicator()
                               : CustomTextButton(
                                   buttonText: "Login",
                                   onPressed: _login,
