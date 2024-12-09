@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 
 class CustomFieldInsideContainer extends StatelessWidget {
-  const CustomFieldInsideContainer({
-    super.key,
-    this.icon,
-    required this.labeltext,
-    required this.inputext,
-    required this.screenWidth,
-    required this.screenHeight,
-    required this.maxLength,
-  });
+  const CustomFieldInsideContainer(
+      {super.key,
+      this.icon,
+      required this.labeltext,
+      required this.inputextController,
+      required this.screenWidth,
+      required this.screenHeight,
+      required this.maxLength,
+      this.onChanged});
   final String labeltext;
-  final String inputext;
+  final TextEditingController inputextController;
   final IconData? icon;
   final int maxLength;
   final double screenWidth;
   final double screenHeight;
+  final Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +55,11 @@ class CustomFieldInsideContainer extends StatelessWidget {
                 ],
               ),
               child: TextFormField(
-                keyboardType: TextInputType.number,
+                onChanged: onChanged,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                controller: inputextController,
                 // maxLength: maxLength,
-                initialValue: inputext,
-                textAlign: TextAlign.end,
+                // textAlign: TextAlign.end,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),

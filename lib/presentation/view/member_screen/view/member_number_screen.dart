@@ -6,13 +6,34 @@ import 'package:microfin/presentation/view/member_screen/model/membership_fetch_
 import 'package:microfin/presentation/view/member_screen/view/member_details_first.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
-class MemberNumber extends StatelessWidget {
-  const MemberNumber({super.key});
+class MemberNumber extends StatefulWidget {
+  final Map<String, dynamic> loginResponse;
+  const MemberNumber({super.key, required this.loginResponse});
+
+  @override
+  State<MemberNumber> createState() => _MemberNumberState();
+}
+
+class _MemberNumberState extends State<MemberNumber> {
+  final TextEditingController _membershipNumberController =
+      TextEditingController();
+  String? memberName;
+  String? fatherName;
+  String? groupnumber;
+  String? dateofJoin;
+  String? membershipNumber;
+  Map<String, dynamic>? memberResponse;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    final result = widget.loginResponse['result'];
+
+    final userName = result != null ? result['UserName'] : 'Unknown User';
+    final organizationDetails =
+        result != null ? result['DisplayName'] : 'No Display Name';
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -22,7 +43,11 @@ class MemberNumber extends StatelessWidget {
         titleTextStyle: const TextStyle(
             color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
-        elevation: 0,
+        elevation: 0, centerTitle: true,
+        title: Text(
+          userName,
+          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
+        ),
         leading: IconButton(
           icon: const Icon(
             Icons.keyboard_arrow_left,
@@ -47,164 +72,48 @@ class MemberNumber extends StatelessWidget {
               color: const Color.fromARGB(255, 224, 225, 255),
               borderRadius: BorderRadius.circular(5),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
-                "Organisation Details",
+                organizationDetails,
                 style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
               ),
             ),
           ),
           CustomheaderWidgetMemberShipNumber(
-              screenWidth: screenWidth, screenHeight: screenHeight),
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            membershipNumberController: _membershipNumberController,
+            getMembershipDetails: () {
+              getMembershipDetails();
+            },
+          ),
           CustomMiddleMemberDetails(
-              screenWidth: screenWidth, screenHeight: screenHeight),
-          SizedBox(
-            height: screenHeight * 0.25,
+            memberName: memberName,
+            dateofJoin: dateofJoin,
+            fatherName: fatherName,
+            groupnumber: groupnumber,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
+          // SizedBox(
+          //   height: screenHeight * 0.25,
+          // ),
+          Spacer(),
           CustomBottomButtons(
-              screenWidth: screenWidth, screenHeight: screenHeight),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomBottomButtons extends StatelessWidget {
-  const CustomBottomButtons({
-    super.key,
-    required this.screenWidth,
-    required this.screenHeight,
-  });
-
-  final double screenWidth;
-  final double screenHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.all(screenWidth * 0.02),
-      // padding: EdgeInsets.symmetric(
-      //   vertical: screenHeight * 0.01,
-      //   horizontal: screenWidth * 0.04,
-      // ),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: screenHeight * 0.05,
-              child: CustomTextButton(
-                buttonText: "RESET",
-                onPressed: () {
-                  // Navigate to the next screen
-                },
-              ),
-            ),
-          ),
-          Expanded(
-            child: SizedBox(
-              height: screenHeight * 0.05,
-              child: CustomTextButton(
-                buttonText: "NEXT",
-                onPressed: () {
-                  // Navigate to the next screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const MemberDetailsScreen()),
-                  );
-                },
-              ),
-            ),
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            loginResponse: widget.loginResponse,
+            memberDetails: {
+              'memberName': memberName,
+              'groupNumber': groupnumber,
+              'MembershipNumber': _membershipNumberController.text,
+            },
           ),
         ],
       ),
     );
   }
-}
 
-class CustomMiddleMemberDetails extends StatelessWidget {
-  const CustomMiddleMemberDetails({
-    super.key,
-    required this.screenWidth,
-    required this.screenHeight,
-  });
-
-  final double screenWidth;
-  final double screenHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: screenHeight * 0.33,
-      margin: EdgeInsets.all(screenWidth * 0.02),
-      padding: EdgeInsets.all(screenWidth * 0.03),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Member details",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          SizedBox(
-            height: screenHeight * 0.01,
-          ),
-          CustomField(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-            labeltext: "Member Name",
-            inputext: "",
-          ),
-          CustomField(
-            labeltext: "Father/Husband",
-            inputext: "",
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-          ),
-          CustomField(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-            labeltext: "Group Number",
-            inputext: "",
-          ),
-          CustomField(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-            labeltext: "Date of Joining",
-            inputext: "",
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
-  const CustomheaderWidgetMemberShipNumber({
-    super.key,
-    required this.screenWidth,
-    required this.screenHeight,
-  });
-
-  final double screenWidth;
-  final double screenHeight;
-
-  @override
-  State<CustomheaderWidgetMemberShipNumber> createState() =>
-      _CustomheaderWidgetMemberShipNumberState();
-}
-
-class _CustomheaderWidgetMemberShipNumberState
-    extends State<CustomheaderWidgetMemberShipNumber> {
-  final TextEditingController _membershipNumberController =
-      TextEditingController();
-
-// Function to send the HTTP request
   Future<void> getMembershipDetails() async {
     String membershipNumber = _membershipNumberController.text.trim();
     // Create the request object (model)
@@ -231,8 +140,24 @@ class _CustomheaderWidgetMemberShipNumberState
       if (response.statusCode == 200) {
         // Process the response body if the request was successful
         print('Response Body: ${response.body}');
+        setState(() {
+          final responseData = jsonDecode(response.body);
+
+          memberResponse = responseData;
+
+          final memberResult = memberResponse?['result'] ?? null;
+
+          memberName = memberResult?['MemberName'];
+          fatherName = memberResult?['HeadOfFamily'];
+          groupnumber = memberResult?['GroupNumber'];
+          dateofJoin = memberResult?['MembershipDate'];
+        });
+        print('its showing 2nd screen');
+        print(memberResponse.toString());
       } else {
         // Handle errors or unsuccessful responses
+        print('its showing 2nd screen');
+        print(memberResponse.toString());
         print('Error: ${response.reasonPhrase}');
       }
     } catch (e) {
@@ -240,7 +165,162 @@ class _CustomheaderWidgetMemberShipNumberState
       print('Exception: $e');
     }
   }
+}
 
+class CustomBottomButtons extends StatefulWidget {
+  const CustomBottomButtons({
+    super.key,
+    required this.screenWidth,
+    required this.screenHeight,
+    required this.loginResponse,
+    required this.memberDetails,
+  });
+
+  final double screenWidth;
+  final double screenHeight;
+  final Map<String, dynamic> loginResponse;
+  final Map<String, dynamic> memberDetails;
+
+  @override
+  State<CustomBottomButtons> createState() => _CustomBottomButtonsState();
+}
+
+class _CustomBottomButtonsState extends State<CustomBottomButtons> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.all(widget.screenWidth * 0.02),
+      // padding: EdgeInsets.symmetric(
+      //   vertical: screenHeight * 0.01,
+      //   horizontal: screenWidth * 0.04,
+      // ),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: widget.screenHeight * 0.05,
+              child: CustomTextButton(
+                buttonText: "RESET",
+                onPressed: () {
+                  // Navigate to the next screen
+                },
+              ),
+            ),
+          ),
+          Expanded(
+            child: SizedBox(
+              height: widget.screenHeight * 0.05,
+              child: CustomTextButton(
+                buttonText: "NEXT",
+                onPressed: () {
+                  // Navigate to the next screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MemberDetailsScreen(
+                            memberDetails: widget.memberDetails,
+                            loginResponse: widget.loginResponse)),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomMiddleMemberDetails extends StatelessWidget {
+  CustomMiddleMemberDetails(
+      {super.key,
+      required this.screenWidth,
+      required this.screenHeight,
+      this.memberName,
+      this.fatherName,
+      this.dateofJoin,
+      this.groupnumber});
+
+  final double screenWidth;
+  final double screenHeight;
+  String? memberName;
+  String? fatherName;
+  String? groupnumber;
+  String? dateofJoin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: screenHeight * 0.33,
+      margin: EdgeInsets.all(screenWidth * 0.02),
+      padding: EdgeInsets.all(screenWidth * 0.03),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Member details",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          SizedBox(
+            height: screenHeight * 0.01,
+          ),
+          CustomField(
+            screenHeight: screenHeight,
+            screenWidth: screenWidth,
+            labeltext: "Member Name",
+            inputext: memberName ?? "",
+          ),
+          CustomField(
+            labeltext: "Father/Husband",
+            inputext: fatherName ?? "",
+            screenHeight: screenHeight,
+            screenWidth: screenWidth,
+          ),
+          CustomField(
+            screenHeight: screenHeight,
+            screenWidth: screenWidth,
+            labeltext: "Group Number",
+            inputext: groupnumber ?? "",
+          ),
+          CustomField(
+            screenHeight: screenHeight,
+            screenWidth: screenWidth,
+            labeltext: "Date of Joining",
+            inputext: dateofJoin ?? "",
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
+  CustomheaderWidgetMemberShipNumber({
+    super.key,
+    required this.screenWidth,
+    required this.screenHeight,
+    required this.getMembershipDetails,
+    required this.membershipNumberController,
+  });
+
+  final double screenWidth;
+  final double screenHeight;
+  final VoidCallback getMembershipDetails;
+  final TextEditingController membershipNumberController;
+
+  @override
+  State<CustomheaderWidgetMemberShipNumber> createState() =>
+      _CustomheaderWidgetMemberShipNumberState();
+}
+
+class _CustomheaderWidgetMemberShipNumberState
+    extends State<CustomheaderWidgetMemberShipNumber> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -277,7 +357,7 @@ class _CustomheaderWidgetMemberShipNumberState
                     ],
                   ),
                   child: TextFormField(
-                    controller: _membershipNumberController,
+                    controller: widget.membershipNumberController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.end,
                     style: const TextStyle(
@@ -330,7 +410,7 @@ class _CustomheaderWidgetMemberShipNumberState
                   height: widget.screenHeight * 0.045,
                   child: CustomTextButton(
                     buttonText: 'Fetch',
-                    onPressed: getMembershipDetails,
+                    onPressed: widget.getMembershipDetails,
                   ),
                 ),
               )
@@ -379,9 +459,23 @@ class CustomField extends StatelessWidget {
               ),
             ),
             Container(
+              height: screenHeight * 0.05,
+              width: screenWidth * 0.45,
+              margin: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black38,
+                    offset: Offset(0, 1),
+                    blurRadius: 2.0,
+                  ),
+                ],
+              ),
+              child: Container(
                 height: screenHeight * 0.05,
-                width: screenWidth * 0.45,
-                margin: const EdgeInsets.all(3),
+                padding: const EdgeInsets.only(left: 4, top: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   color: Colors.white,
@@ -393,35 +487,12 @@ class CustomField extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, top: 12),
-                  child: Text(inputext),
-                )
-                // TextFormField(
-                //   initialValue: inputext,
-                //   textAlign: TextAlign.start,
-                //   decoration: InputDecoration(
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(5),
-                //     ),
-                //     enabledBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(5),
-                //       borderSide: const BorderSide(
-                //         color: Colors.black,
-                //         width: 1.0,
-                //       ),
-                //     ),
-                //     suffixIcon: Icon(icon),
-                //     contentPadding: const EdgeInsets.symmetric(
-                //       vertical: 12, // Adjust this for vertical padding
-                //       horizontal: 15, // Adjust this for horizontal padding
-                //     ),
-                //   ),
-                //   style: TextStyle(
-                //     fontSize: screenWidth * 0.03, // Adjust the text size
-                //   ),
-                // ),
+                child: Text(
+                  inputext,
+                  style: const TextStyle(fontSize: 15),
                 ),
+              ),
+            ),
           ],
         ),
       ],

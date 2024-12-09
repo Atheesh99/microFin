@@ -1,198 +1,313 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:microfin/core/constants/colour.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_details_final.dart';
 import 'package:microfin/presentation/widgets/custom_text_textfield_container.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
-class MemberDetailsScreen extends StatelessWidget {
-  const MemberDetailsScreen({super.key});
+class MemberDetailsScreen extends StatefulWidget {
+  final Map<String, dynamic> loginResponse;
+  final Map<String, dynamic> memberDetails;
+  const MemberDetailsScreen({
+    super.key,
+    required this.loginResponse,
+    required this.memberDetails,
+  });
+
+  @override
+  State<MemberDetailsScreen> createState() => _MemberDetailsScreenState();
+}
+
+class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
+  String closingBalance = '0.00';
+
+  // Controllers for editable fields
+  final TextEditingController monthsDueController = TextEditingController();
+  final TextEditingController emitController = TextEditingController();
+  final TextEditingController amountPaidController = TextEditingController();
+  final TextEditingController interestController = TextEditingController();
+  double totalAmount = 0.0;
+
+  void calculateTotal() {
+    // Parse the values from the controllers
+    double amountPaid = double.tryParse(amountPaidController.text) ?? 0.0;
+    double interest = double.tryParse(interestController.text) ?? 0.0;
+
+    // Calculate total
+    setState(() {
+      totalAmount = amountPaid + interest;
+    });
+  }
+
+  // Callback to update closingBalance
+  void updateClosingBalance(String newBalance) {
+    setState(() {
+      closingBalance = newBalance;
+      calculateTotal();
+    });
+  }
+
+  // Callback to update installment details
+  void updateInstallmentDetails(Map<String, dynamic> accountDetails) {
+    setState(() {
+      monthsDueController.text = accountDetails['monthsDue'];
+      emitController.text = accountDetails['eMI'];
+      amountPaidController.text = accountDetails['receipts'];
+      interestController.text = accountDetails['interest'];
+    });
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers to avoid memory leaks
+    monthsDueController.dispose();
+    emitController.dispose();
+    amountPaidController.dispose();
+    interestController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final result = widget.loginResponse['result'];
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        // toolbarHeight: mediaQuery.size.height * 7,
-        centerTitle: true,
-        title: const Text("Name of the Organization"),
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-        backgroundColor: appbarColor,
-        elevation: 0,
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              // Handle the selected value
-              print(value); // Example action when menu item is selected
-            },
+    final userName = result != null ? result['UserName'] : 'Unknown User';
+    // final organizationDetails =
+    //     result != null ? result['DisplayName'] : 'No Display Name';
+    final memberName = widget.memberDetails['memberName'] ?? 'Unknown Member';
+    final groupNumber = widget.memberDetails['groupNumber'] ?? "";
+    final membershipNumber = widget.memberDetails['MembershipNumber'] ?? "";
+
+    // Format the closing balance with commas
+    final formattedBalance =
+        NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          // toolbarHeight: mediaQuery.size.height * 7,
+          centerTitle: true,
+          title: Text(
+            userName,
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
+          ),
+          titleTextStyle: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+          backgroundColor: appbarColor,
+          elevation: 0,
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                // Handle the selected value
+                print(value); // Example action when menu item is selected
+              },
+              icon: const Icon(
+                Icons.menu,
+                color: Colors.white,
+              ),
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'Profile',
+                  child: Text('Profile'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Settings',
+                  child: Text('Settings'),
+                ),
+                // Add more menu items if needed
+              ],
+            ),
+          ],
+          leading: IconButton(
             icon: const Icon(
-              Icons.menu,
+              Icons.keyboard_arrow_left,
               color: Colors.white,
+              size: 25,
             ),
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'Profile',
-                child: Text('Profile'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Settings',
-                child: Text('Settings'),
-              ),
-              // Add more menu items if needed
-            ],
+            onPressed: (() {
+              Navigator.of(context).pop();
+            }),
           ),
-        ],
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_arrow_left,
-            color: Colors.white,
-            size: 25,
-          ),
-          onPressed: (() {
-            Navigator.of(context).pop();
-          }),
         ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            height: screenHeight * 0.09,
-            // margin: EdgeInsets.all(screenWidth * 0.02),
-            // padding: EdgeInsets.all(screenWidth * 0.05),
-            decoration: BoxDecoration(
-              boxShadow: kElevationToShadow[1],
-              color: const Color.fromARGB(255, 224, 225, 255),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: const Center(
-              child: Text(
-                "Member details",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-              ),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(screenWidth * 0.02),
-            padding: EdgeInsets.all(screenWidth * 0.03),
-            decoration: BoxDecoration(
-                boxShadow: kElevationToShadow[2],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Select Account",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                SizedBox(height: screenHeight * 0.01),
-                CustomDropdown(),
-                SizedBox(height: screenHeight * 0.02),
-                const Row(
-                  children: [
-                    Text(
-                      "Current Balance",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Spacer(),
-                    Text(
-                      "0.00",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            height: screenHeight * 0.29,
-            margin: EdgeInsets.only(
-                left: screenWidth * 0.03,
-                right: screenWidth * 0.03,
-                bottom: screenWidth * 0.01),
-            // margin: EdgeInsets.all(screenWidth * 0.02),
-            padding: EdgeInsets.all(screenWidth * 0.01),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: kElevationToShadow[1],
-                borderRadius: BorderRadius.circular(5)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Installment details",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                SizedBox(
-                  height: screenHeight * 0.01,
-                ),
-                CustomFieldInsideContainer(
-                  labeltext: "Months/Days Due",
-                  inputext: "",
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight,
-                  maxLength: 3,
-                ),
-                CustomFieldInsideContainer(
-                  labeltext: "Month Installment",
-                  inputext: "",
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight,
-                  maxLength: 7,
-                ),
-                CustomFieldInsideContainer(
-                  labeltext: "Amount Paid",
-                  inputext: "",
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight,
-                  maxLength: 7,
-                ),
-                CustomFieldInsideContainer(
-                  labeltext: "Interest",
-                  inputext: "",
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight,
-                  maxLength: 7,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            height: screenHeight * 0.07,
-            margin: EdgeInsets.only(
-                left: screenWidth * 0.03, right: screenWidth * 0.03),
-            // padding: EdgeInsets.all(screenWidth * 0.04),
-            decoration: BoxDecoration(
+        body: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              height: screenHeight * 0.09,
+              // margin: EdgeInsets.all(screenWidth * 0.02),
+              // padding: EdgeInsets.all(screenWidth * 0.05),
+              decoration: BoxDecoration(
                 boxShadow: kElevationToShadow[1],
                 color: const Color.fromARGB(255, 224, 225, 255),
-                borderRadius: BorderRadius.circular(5)),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Total Amount",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Center(
+                child: Text(
+                  'Number: $membershipNumber   Name: $memberName  \n                  Group: $groupNumber ',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w400, fontSize: 16),
                 ),
-                Text(
-                  "0.00",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-              ],
+              ),
             ),
-          ),
-          SizedBox(height: screenHeight * 0.099),
-          CustomBottomButtons(
-              screenWidth: screenWidth, screenHeight: screenHeight)
-        ],
+            // the tab bar with two items
+            PreferredSize(
+              preferredSize:
+                  const Size.fromHeight(50.0), // Set the height explicitly
+              child: AppBar(
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(text: 'Balance'),
+                    Tab(text: 'Details'),
+                  ],
+                ),
+              ),
+            ),
+
+            // Container(
+            //   width: double.infinity,
+            //   margin: EdgeInsets.all(screenWidth * 0.02),
+            //   padding: EdgeInsets.all(screenWidth * 0.03),
+            //   decoration: BoxDecoration(
+            //       boxShadow: kElevationToShadow[2],
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(5)),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       const Text(
+            //         "Select Account",
+            //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            //       ),
+            //       SizedBox(height: screenHeight * 0.01),
+            //       // dropdownButton
+            //       CustomDropdown(
+            //         onBalanceChanged: updateClosingBalance,
+            //         onAccountSelected: updateInstallmentDetails,
+            //       ),
+            //       SizedBox(height: screenHeight * 0.02),
+            //       Row(
+            //         children: [
+            //           const Text(
+            //             "Current Balance",
+            //             style: TextStyle(fontSize: 16),
+            //           ),
+            //           const Spacer(),
+            //           Text(
+            //             '\₹' + formattedBalance,
+            //             style: const TextStyle(
+            //                 fontWeight: FontWeight.bold, fontSize: 18),
+            //           ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Container(
+            //   width: double.infinity,
+            //   height: screenHeight * 0.29,
+            //   margin: EdgeInsets.only(
+            //       left: screenWidth * 0.03,
+            //       right: screenWidth * 0.03,
+            //       bottom: screenWidth * 0.01),
+            //   // margin: EdgeInsets.all(screenWidth * 0.02),
+            //   padding: EdgeInsets.all(screenWidth * 0.01),
+            //   decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       boxShadow: kElevationToShadow[1],
+            //       borderRadius: BorderRadius.circular(5)),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       const Text(
+            //         "Installment details",
+            //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            //       ),
+            //       SizedBox(
+            //         height: screenHeight * 0.01,
+            //       ),
+            //       CustomFieldInsideContainer(
+            //         labeltext: "Months/Days Due",
+            //         inputextController: monthsDueController,
+            //         screenWidth: screenWidth,
+            //         screenHeight: screenHeight,
+            //         maxLength: 3,
+            //       ),
+            //       CustomFieldInsideContainer(
+            //         labeltext: " EMi",
+            //         inputextController: emitController,
+            //         screenWidth: screenWidth,
+            //         screenHeight: screenHeight,
+            //         maxLength: 7,
+            //       ),
+            //       CustomFieldInsideContainer(
+            //         labeltext: "Amount Paid",
+            //         inputextController: amountPaidController,
+            //         screenWidth: screenWidth,
+            //         screenHeight: screenHeight,
+            //         maxLength: 7,
+            //         onChanged: (p0) {
+            //           setState(() {
+            //             calculateTotal();
+            //           });
+            //         },
+            //       ),
+            //       CustomFieldInsideContainer(
+            //         labeltext: "Interest",
+            //         inputextController: interestController,
+            //         screenWidth: screenWidth,
+            //         screenHeight: screenHeight,
+            //         maxLength: 7,
+            //         onChanged: (p0) {
+            //           setState(() {
+            //             calculateTotal();
+            //           });
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Container(
+            //   width: double.infinity,
+            //   height: screenHeight * 0.07,
+            //   margin: EdgeInsets.only(
+            //       left: screenWidth * 0.03, right: screenWidth * 0.03),
+            //   // padding: EdgeInsets.all(screenWidth * 0.04),
+            //   decoration: BoxDecoration(
+            //       boxShadow: kElevationToShadow[1],
+            //       color: const Color.fromARGB(255, 224, 225, 255),
+            //       borderRadius: BorderRadius.circular(5)),
+            //   child: Row(
+            //     children: [
+            //       const SizedBox(
+            //         width: 6,
+            //       ),
+            //       const Text(
+            //         "Total Amount",
+            //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            //       ),
+            //       Spacer(),
+            //       Text(
+            //         '₹${totalAmount.toStringAsFixed(0)}',
+            //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            //       ),
+            //       const SizedBox(
+            //         width: 6,
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // SizedBox(height: screenHeight * 0.099),
+            CustomBottomButtons(
+                screenWidth: screenWidth, screenHeight: screenHeight)
+          ],
+        ),
       ),
     );
   }
@@ -264,7 +379,15 @@ class CustomBottomButtons extends StatelessWidget {
 }
 
 class CustomDropdown extends StatefulWidget {
-  const CustomDropdown({super.key});
+  final Function(String) onBalanceChanged; // Callback function
+  final Function(Map<String, String>)
+      onAccountSelected; // New callback for account details
+
+  const CustomDropdown(
+      {Key? key,
+      required this.onBalanceChanged,
+      required this.onAccountSelected})
+      : super(key: key);
 
   @override
   _CustomDropdownState createState() => _CustomDropdownState();
@@ -272,6 +395,65 @@ class CustomDropdown extends StatefulWidget {
 
 class _CustomDropdownState extends State<CustomDropdown> {
   String? selectedValue;
+  List<Map<String, String>> dropdownItems = [];
+  String? closingBalance;
+  String? emi;
+  String? monthsDue;
+  String? receipts;
+  String? interest;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDropdownData();
+  }
+
+  Future<void> fetchDropdownData() async {
+    try {
+      // Replace with your membershipID and receiptDate
+      String membershipID = "70107";
+      String receiptDate = "2024-11-08";
+
+      final uri = Uri.parse(
+              'http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts')
+          .replace(queryParameters: {
+        'MembershipID': membershipID,
+        'ReceiptDate': receiptDate,
+      });
+
+      var response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseJson = jsonDecode(response.body);
+        String result = responseJson['result'];
+        Map<String, dynamic> resultJson = jsonDecode(result);
+        print("Result of  AccountNumber${result.toString()}");
+        print(resultJson.toString());
+
+        // Extract AccountDetails and map to dropdown items
+        List<dynamic> accountDetails = resultJson['AccountDetails'];
+        setState(() {
+          dropdownItems = accountDetails.map<Map<String, String>>((account) {
+            return {
+              'accountNumber': account['AccountNumber'],
+              'sDisplayName': account['SDisplayName'],
+              'closingBalance': account['ClosingBalance'],
+              'eMI': account['EMI'],
+              'monthsDue': account['MonthsDue'],
+              'receipts': account['Receipts'],
+              'interest': account['Interest'],
+            };
+          }).toList();
+          print("0000000000000000000000000000000000000000");
+          print("Account Details: ${accountDetails.toString()}");
+        });
+      } else {
+        print('Error: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -299,16 +481,35 @@ class _CustomDropdownState extends State<CustomDropdown> {
               color: Colors.black), // Right-side down arrow
           decoration:
               const InputDecoration.collapsed(hintText: ''), // Remove underline
-          items:
-              <String>['Option 1', 'Option 2', 'Option 3'].map((String value) {
+          items: dropdownItems.map((item) {
+            // Combine accountNumber and sDisplayName for display
+            String displayText =
+                '${item['accountNumber']} - ${item['sDisplayName']}';
             return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
+              value: item['accountNumber'], // Use accountNumber as the value
+              child: Text(displayText),
             );
           }).toList(),
           onChanged: (newValue) {
             setState(() {
               selectedValue = newValue;
+              // Find the selected account and update closingBalance
+              final selectedAccount = dropdownItems.firstWhere(
+                (item) => item['accountNumber'] == newValue,
+              );
+              closingBalance = selectedAccount['closingBalance'];
+              emi = selectedAccount['eMI'] ?? '0.00';
+              monthsDue = selectedAccount['monthsDue'] ?? '0';
+              receipts = selectedAccount['receipts'] ?? '0.00';
+              interest = selectedAccount['interest'] ?? '0.00';
+              // Send the closing balance to the parent screen
+
+              print('Selected Account Details:');
+              print('EMI: $emi');
+
+              print('Interest: $interest');
+              widget.onAccountSelected(selectedAccount);
+              widget.onBalanceChanged(closingBalance ?? '0.00');
             });
           },
         ),
@@ -371,5 +572,46 @@ class CustomRowWithIconWidget extends StatelessWidget {
         )
       ],
     );
+  }
+}
+
+class TabBarscreen1 extends StatelessWidget {
+  const TabBarscreen1({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Column(
+      children: [
+        Center(
+          child: Text('screenone'),
+        )
+      ],
+    ));
+  }
+}
+
+class TabBarscreen2 extends StatelessWidget {
+  const TabBarscreen2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Column(
+      children: [
+        Center(
+          child: Text('screenone'),
+        )
+      ],
+    ));
+  }
+}
+
+class TabBar extends StatelessWidget {
+  const TabBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
   }
 }

@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final AuthAPI _authAPI = AuthAPI();
+  // final AuthAPI _authAPI = AuthAPI();
 
   bool _isLoading = false;
 
@@ -97,7 +97,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Navigate to the next screen if login is successful
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MemberNumber()),
+            MaterialPageRoute(
+              builder: (context) => MemberNumber(
+                loginResponse: responseData,
+              ),
+            ),
           );
         } else {
           // Show an error message if the login failed
@@ -173,9 +177,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: mediaQuery.size.height * 0.06,
-                ),
+                // SizedBox(
+                //   height: mediaQuery.size.height * 0.01,
+                // ),
                 Padding(
                   padding: const EdgeInsets.only(left: 7, right: 7),
                   child: Container(
