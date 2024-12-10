@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:microfin/core/constants/colour.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_details_final.dart';
-import 'package:microfin/presentation/widgets/custom_text_textfield_container.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
 class MemberDetailsScreen extends StatefulWidget {
@@ -83,8 +82,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     final membershipNumber = widget.memberDetails['MembershipNumber'] ?? "";
 
     // Format the closing balance with commas
-    final formattedBalance =
-        NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
+    final formattedBalance = NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
 
     return DefaultTabController(
       length: 2,
@@ -98,8 +96,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             userName,
             style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
           ),
-          titleTextStyle: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+          titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
           backgroundColor: appbarColor,
           elevation: 0,
           actions: [
@@ -151,24 +148,14 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               child: Center(
                 child: Text(
                   'Number: $membershipNumber   Name: $memberName  \n                  Group: $groupNumber ',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w400, fontSize: 16),
+                  style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
                 ),
               ),
             ),
             // the tab bar with two items
-            PreferredSize(
-              preferredSize:
-                  const Size.fromHeight(50.0), // Set the height explicitly
-              child: AppBar(
-                bottom: const TabBar(
-                  tabs: [
-                    Tab(text: 'Balance'),
-                    Tab(text: 'Details'),
-                  ],
-                ),
-              ),
-            ),
+            AppBar(
+              bottom: TabBar(tabs: []),
+            )
 
             // Container(
             //   width: double.infinity,
@@ -304,8 +291,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             //   ),
             // ),
             // SizedBox(height: screenHeight * 0.099),
-            CustomBottomButtons(
-                screenWidth: screenWidth, screenHeight: screenHeight)
+            ,
+            CustomBottomButtons(screenWidth: screenWidth, screenHeight: screenHeight)
           ],
         ),
       ),
@@ -362,9 +349,7 @@ class CustomBottomButtons extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const MemberDetailsFinalScreen()),
+                      MaterialPageRoute(builder: (context) => const MemberDetailsFinalScreen()),
                     );
                     // Navigate to the next screen
                   },
@@ -380,14 +365,9 @@ class CustomBottomButtons extends StatelessWidget {
 
 class CustomDropdown extends StatefulWidget {
   final Function(String) onBalanceChanged; // Callback function
-  final Function(Map<String, String>)
-      onAccountSelected; // New callback for account details
+  final Function(Map<String, String>) onAccountSelected; // New callback for account details
 
-  const CustomDropdown(
-      {Key? key,
-      required this.onBalanceChanged,
-      required this.onAccountSelected})
-      : super(key: key);
+  const CustomDropdown({Key? key, required this.onBalanceChanged, required this.onAccountSelected}) : super(key: key);
 
   @override
   _CustomDropdownState createState() => _CustomDropdownState();
@@ -414,9 +394,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
       String membershipID = "70107";
       String receiptDate = "2024-11-08";
 
-      final uri = Uri.parse(
-              'http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts')
-          .replace(queryParameters: {
+      final uri = Uri.parse('http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts').replace(queryParameters: {
         'MembershipID': membershipID,
         'ReceiptDate': receiptDate,
       });
@@ -469,22 +447,17 @@ class _CustomDropdownState extends State<CustomDropdown> {
             blurRadius: 2.0,
           ),
         ],
-        border: Border.all(
-            color: const Color.fromARGB(255, 149, 147, 147),
-            width: 1.0), // Rectangular border
+        border: Border.all(color: const Color.fromARGB(255, 149, 147, 147), width: 1.0), // Rectangular border
         borderRadius: BorderRadius.circular(2.0),
       ),
       child: Center(
         child: DropdownButtonFormField<String>(
           value: selectedValue,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded,
-              color: Colors.black), // Right-side down arrow
-          decoration:
-              const InputDecoration.collapsed(hintText: ''), // Remove underline
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black), // Right-side down arrow
+          decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
           items: dropdownItems.map((item) {
             // Combine accountNumber and sDisplayName for display
-            String displayText =
-                '${item['accountNumber']} - ${item['sDisplayName']}';
+            String displayText = '${item['accountNumber']} - ${item['sDisplayName']}';
             return DropdownMenuItem<String>(
               value: item['accountNumber'], // Use accountNumber as the value
               child: Text(displayText),
@@ -546,12 +519,9 @@ class CustomRowWithIconWidget extends StatelessWidget {
                 margin: EdgeInsets.only(right: screenWidth * 0.04),
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(
-                        width: 1.0, color: Colors.black), // Top border
-                    bottom: BorderSide(
-                        width: 1.0, color: Colors.black), // Top border
-                    left: BorderSide(
-                        width: 1.0, color: Colors.black), // Left border
+                    top: BorderSide(width: 1.0, color: Colors.black), // Top border
+                    bottom: BorderSide(width: 1.0, color: Colors.black), // Top border
+                    left: BorderSide(width: 1.0, color: Colors.black), // Left border
                   ),
                 ),
               )
@@ -604,14 +574,5 @@ class TabBarscreen2 extends StatelessWidget {
         )
       ],
     ));
-  }
-}
-
-class TabBar extends StatelessWidget {
-  const TabBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold();
   }
 }
