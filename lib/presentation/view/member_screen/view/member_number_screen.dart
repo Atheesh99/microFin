@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:microfin/core/constants/colour.dart';
+import 'package:microfin/presentation/view/member_screen/model/get_membership_details_model.dart';
 import 'package:microfin/presentation/view/member_screen/model/membership_fetch_model.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_details_first.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
@@ -15,14 +17,15 @@ class MemberNumber extends StatefulWidget {
 }
 
 class _MemberNumberState extends State<MemberNumber> {
-  final TextEditingController _membershipNumberController =
-      TextEditingController();
+  final TextEditingController _membershipNumberController = TextEditingController();
   String? memberName;
   String? fatherName;
   String? groupnumber;
   String? dateofJoin;
   String? membershipNumber;
   Map<String, dynamic>? memberResponse;
+
+  MemberShipDetailsModel? membershipFechedDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +35,14 @@ class _MemberNumberState extends State<MemberNumber> {
     final result = widget.loginResponse['result'];
 
     final userName = result != null ? result['UserName'] : 'Unknown User';
-    final organizationDetails =
-        result != null ? result['DisplayName'] : 'No Display Name';
+    final organizationDetails = result != null ? result['DisplayName'] : 'No Display Name';
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromARGB(255, 242, 242, 242),
       appBar: AppBar(
         // toolbarHeight: mediaQuery.size.height * 0.05,
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0, centerTitle: true,
         title: Text(
@@ -83,8 +84,10 @@ class _MemberNumberState extends State<MemberNumber> {
             screenWidth: screenWidth,
             screenHeight: screenHeight,
             membershipNumberController: _membershipNumberController,
-            getMembershipDetails: () {
-              getMembershipDetails();
+            getMembershipDetails: () async {
+              membershipFechedDetails = await getMembershipDetails();
+
+              log("fetched values -- ${membershipFechedDetails!.displayName}");
             },
           ),
           CustomMiddleMemberDetails(
@@ -100,22 +103,27 @@ class _MemberNumberState extends State<MemberNumber> {
           // ),
           Spacer(),
           CustomBottomButtons(
+            nextButton: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        MemberDetailsScreen(memberDetails: membershipFechedDetails!, loginResponse: widget.loginResponse)),
+              );
+            },
+            resetButton: () {},
             screenWidth: screenWidth,
             screenHeight: screenHeight,
             loginResponse: widget.loginResponse,
-            memberDetails: {
-              'memberName': memberName,
-              'groupNumber': groupnumber,
-              'MembershipNumber': _membershipNumberController.text,
-            },
           ),
         ],
       ),
     );
   }
 
-  Future<void> getMembershipDetails() async {
+  Future<MemberShipDetailsModel?> getMembershipDetails() async {
     String membershipNumber = _membershipNumberController.text.trim();
+
     // Create the request object (model)
     final membershipData = MembershipFetchModel(
       officeID: '3',
@@ -126,43 +134,40 @@ class _MemberNumberState extends State<MemberNumber> {
     // Define headers
     var headers = {'Content-Type': 'application/json'};
 
-    // Make the POST request
     try {
+      // Make the POST request
       var response = await http.post(
-        Uri.parse(
-            'http://154.38.175.150:8090/api/members/getMembershipDetails'),
+        Uri.parse('http://154.38.175.150:8090/api/members/getMembershipDetails'),
         headers: headers,
-        body:
-            json.encode(membershipData.toJson()), // Serialize the model to JSON
+        body: json.encode(membershipData.toJson()),
       );
 
       // Check for a successful response
       if (response.statusCode == 200) {
-        // Process the response body if the request was successful
         print('Response Body: ${response.body}');
+        final responseData = jsonDecode(response.body);
+
+        // Extract `result` and parse it into a model
+        var result = responseData['result'];
+
+        MemberShipDetailsModel memberResult = MemberShipDetailsModel.fromJson(result);
+
         setState(() {
-          final responseData = jsonDecode(response.body);
-
-          memberResponse = responseData;
-
-          final memberResult = memberResponse?['result'] ?? null;
-
-          memberName = memberResult?['MemberName'];
-          fatherName = memberResult?['HeadOfFamily'];
-          groupnumber = memberResult?['GroupNumber'];
-          dateofJoin = memberResult?['MembershipDate'];
+          memberName = memberResult.memberName;
+          fatherName = memberResult.headOfFamily;
+          groupnumber = memberResult.groupNumber;
+          dateofJoin = memberResult.membershipDate;
         });
-        print('its showing 2nd screen');
-        print(memberResponse.toString());
+        return memberResult;
       } else {
-        // Handle errors or unsuccessful responses
-        print('its showing 2nd screen');
-        print(memberResponse.toString());
+        // Handle unsuccessful responses
         print('Error: ${response.reasonPhrase}');
+        return null;
       }
     } catch (e) {
       // Handle exceptions
       print('Exception: $e');
+      return null;
     }
   }
 }
@@ -173,13 +178,15 @@ class CustomBottomButtons extends StatefulWidget {
     required this.screenWidth,
     required this.screenHeight,
     required this.loginResponse,
-    required this.memberDetails,
+    required this.resetButton,
+    required this.nextButton,
   });
 
   final double screenWidth;
   final double screenHeight;
+  final VoidCallback resetButton;
+  final VoidCallback nextButton;
   final Map<String, dynamic> loginResponse;
-  final Map<String, dynamic> memberDetails;
 
   @override
   State<CustomBottomButtons> createState() => _CustomBottomButtonsState();
@@ -195,37 +202,19 @@ class _CustomBottomButtonsState extends State<CustomBottomButtons> {
       //   vertical: screenHeight * 0.01,
       //   horizontal: screenWidth * 0.04,
       // ),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(
-                buttonText: "RESET",
-                onPressed: () {
-                  // Navigate to the next screen
-                },
-              ),
+              child: CustomTextButton(buttonText: "RESET", onPressed: widget.resetButton),
             ),
           ),
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(
-                buttonText: "NEXT",
-                onPressed: () {
-                  // Navigate to the next screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MemberDetailsScreen(
-                            memberDetails: widget.memberDetails,
-                            loginResponse: widget.loginResponse)),
-                  );
-                },
-              ),
+              child: CustomTextButton(buttonText: "NEXT", onPressed: widget.nextButton),
             ),
           ),
         ],
@@ -258,8 +247,7 @@ class CustomMiddleMemberDetails extends StatelessWidget {
       height: screenHeight * 0.33,
       margin: EdgeInsets.all(screenWidth * 0.02),
       padding: EdgeInsets.all(screenWidth * 0.03),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -315,12 +303,10 @@ class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
   final TextEditingController membershipNumberController;
 
   @override
-  State<CustomheaderWidgetMemberShipNumber> createState() =>
-      _CustomheaderWidgetMemberShipNumberState();
+  State<CustomheaderWidgetMemberShipNumber> createState() => _CustomheaderWidgetMemberShipNumberState();
 }
 
-class _CustomheaderWidgetMemberShipNumberState
-    extends State<CustomheaderWidgetMemberShipNumber> {
+class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetMemberShipNumber> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -328,8 +314,7 @@ class _CustomheaderWidgetMemberShipNumberState
       width: double.infinity,
       margin: EdgeInsets.all(widget.screenWidth * 0.02),
       padding: EdgeInsets.all(widget.screenWidth * 0.03),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -360,8 +345,7 @@ class _CustomheaderWidgetMemberShipNumberState
                     controller: widget.membershipNumberController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w400),
+                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(5),
@@ -454,8 +438,7 @@ class CustomField extends StatelessWidget {
               width: screenHeight * 0.16,
               child: Text(
                 labeltext,
-                style: TextStyle(
-                    fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
+                style: TextStyle(fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
               ),
             ),
             Container(
