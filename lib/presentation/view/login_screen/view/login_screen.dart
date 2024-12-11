@@ -272,7 +272,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const CircularProgressIndicator()
                               : CustomTextButton(
                                   buttonText: "Login",
-                                  onPressed: _login,
+                                  onPressed: () {
+                                    _login();
+                                    FocusScope.of(context).unfocus();
+                                  },
                                 )
                         ],
                       ),

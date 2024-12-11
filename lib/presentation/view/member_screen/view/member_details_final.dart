@@ -20,7 +20,8 @@ class MemberDetailsFinalScreen extends StatelessWidget {
         // toolbarHeight: mediaQuery.size.height * 7,
         centerTitle: true,
         title: const Text("Name of the Organization"),
-        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0,
         leading: IconButton(
@@ -83,8 +84,10 @@ class MemberDetailsFinalScreen extends StatelessWidget {
                     width: double.infinity,
                     margin: EdgeInsets.all(screenWidth * 0.02),
                     padding: EdgeInsets.all(screenWidth * 0.03),
-                    decoration:
-                        BoxDecoration(boxShadow: kElevationToShadow[1], color: Colors.white, borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(
+                        boxShadow: kElevationToShadow[1],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)),
                     child: Column(
                       children: [
                         CustomRowWithIconWidget(
@@ -137,7 +140,10 @@ class MemberDetailsFinalScreen extends StatelessWidget {
             width: double.infinity,
             margin: EdgeInsets.all(screenWidth * 0.02),
             padding: EdgeInsets.all(screenWidth * 0.03),
-            decoration: BoxDecoration(boxShadow: kElevationToShadow[1], color: Colors.white, borderRadius: BorderRadius.circular(5)),
+            decoration: BoxDecoration(
+                boxShadow: kElevationToShadow[1],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5)),
             child: Column(
               children: [
                 CustomRowWithIconWidget(
@@ -164,104 +170,10 @@ class MemberDetailsFinalScreen extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(screenWidth * 0.02),
-              padding: EdgeInsets.all(screenWidth * 0.03),
-              decoration: BoxDecoration(boxShadow: kElevationToShadow[1], color: Colors.white, borderRadius: BorderRadius.circular(5)),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text(
-                  "Select Other Accounts",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                SizedBox(height: screenHeight * 0.01),
-                CustomDropdown(),
-                SizedBox(height: screenHeight * 0.02),
-                Row(
-                  children: [
-                    const Text(
-                      "Amount",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                    ),
-                    SizedBox(
-                      width: screenWidth * 0.02,
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: screenHeight * 0.05,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.white,
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              offset: Offset(0, 1),
-                              blurRadius: 2.0,
-                            ),
-                          ],
-                        ),
-                        child: TextFormField(
-                          textAlign: TextAlign.end,
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: screenWidth * 0.04,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: SizedBox(
-                        height: screenHeight * 0.045,
-                        child: CustomTextButton(
-                          buttonText: "Ok",
-                          onPressed: () {},
-                        ),
-                      ),
-                    )
-                  ],
-                )
-              ])),
+
           const Spacer(),
-          CustomBottomButtons(screenWidth: screenWidth, screenHeight: screenHeight)
+          CustomBottomButtons(
+              screenWidth: screenWidth, screenHeight: screenHeight)
         ],
       ),
     );
@@ -287,7 +199,8 @@ class CustomBottomButtons extends StatelessWidget {
       //   vertical: screenHeight * 0.01,
       //   horizontal: screenWidth * 0.04,
       // ),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
@@ -310,7 +223,7 @@ class CustomBottomButtons extends StatelessWidget {
                           // Handle save/update logic here
                           Navigator.of(context).pop(); // Close popup on update
                         },
-                        children: [
+                        children: const [
                           Text('Content goes here'),
                         ],
                       );
@@ -396,8 +309,10 @@ class _CustomDropdownState extends State<CustomDropdown> {
             Icons.keyboard_arrow_down_rounded,
             color: Colors.black,
           ), // Right-side down arrow
-          decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
-          items: <String>['Option 1', 'Option 2', 'Option 3'].map((String value) {
+          decoration:
+              const InputDecoration.collapsed(hintText: ''), // Remove underline
+          items:
+              <String>['Option 1', 'Option 2', 'Option 3'].map((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),
@@ -442,9 +357,12 @@ class CustomRowWithIconWidget extends StatelessWidget {
                 margin: EdgeInsets.only(right: screenWidth * 0.04),
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(width: 1.0, color: Colors.black), // Top border
-                    bottom: BorderSide(width: 1.0, color: Colors.black), // Top border
-                    left: BorderSide(width: 1.0, color: Colors.black), // Left border
+                    top: BorderSide(
+                        width: 1.0, color: Colors.black), // Top border
+                    bottom: BorderSide(
+                        width: 1.0, color: Colors.black), // Top border
+                    left: BorderSide(
+                        width: 1.0, color: Colors.black), // Left border
                   ),
                 ),
               )

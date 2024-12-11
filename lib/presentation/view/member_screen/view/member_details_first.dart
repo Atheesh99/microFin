@@ -58,7 +58,9 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
       String membershipID = "70107";
       String receiptDate = "2024-11-08";
 
-      final uri = Uri.parse('http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts').replace(queryParameters: {
+      final uri = Uri.parse(
+              'http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts')
+          .replace(queryParameters: {
         'MembershipID': membershipID,
         'ReceiptDate': receiptDate,
       });
@@ -72,8 +74,10 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
 
         Map<String, dynamic> resultJson = jsonDecode(result);
 
-        accountDetailsList =
-            (resultJson['AccountDetails'] as List).map((e) => MemberAccountDetailsModel.fromJson(e as Map<String, dynamic>)).toList();
+        accountDetailsList = (resultJson['AccountDetails'] as List)
+            .map((e) =>
+                MemberAccountDetailsModel.fromJson(e as Map<String, dynamic>))
+            .toList();
 
         print("response - ${accountDetailsList![0].accountNumber}");
 
@@ -154,7 +158,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     final membershipNumber = widget.memberDetails.membershipNumber ?? "";
 
     // Format the closing balance with commas
-    final formattedBalance = NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
+    final formattedBalance =
+        NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
 
     return DefaultTabController(
       length: 2,
@@ -168,41 +173,30 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             userName,
             style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
           ),
-          titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+          titleTextStyle: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
           backgroundColor: appbarColor,
           elevation: 0,
-          actions: [
-            PopupMenuButton<String>(
-              onSelected: (value) {
-                // Handle the selected value
-                print(value); // Example action when menu item is selected
-              },
-              icon: const Icon(
-                Icons.menu,
-                color: Colors.white,
-              ),
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: 'Profile',
-                  child: Text('Profile'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'Settings',
-                  child: Text('Settings'),
-                ),
-                // Add more menu items if needed
-              ],
-            ),
-          ],
-          leading: IconButton(
+          leading: PopupMenuButton<String>(
+            onSelected: (value) {
+              // Handle the selected value
+              print(value); // Example action when menu item is selected
+            },
             icon: const Icon(
-              Icons.keyboard_arrow_left,
+              Icons.menu,
               color: Colors.white,
-              size: 25,
             ),
-            onPressed: (() {
-              Navigator.of(context).pop();
-            }),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'Profile',
+                child: Text('Profile'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Settings',
+                child: Text('Settings'),
+              ),
+              // Add more menu items if needed
+            ],
           ),
         ),
         body: Column(
@@ -219,186 +213,335 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               ),
               child: Center(
                 child: Text(
-                  'Number: $membershipNumber   Name: $memberName  \n                  Group: $groupNumber ',
-                  style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+                  '     Number: $membershipNumber   Name: $memberName  \n                    Group: $groupNumber ',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w400, fontSize: 16),
                 ),
               ),
             ),
             // the tab bar with two items
 
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(screenWidth * 0.02),
-              padding: EdgeInsets.all(screenWidth * 0.03),
-              decoration: BoxDecoration(boxShadow: kElevationToShadow[2], color: Colors.white, borderRadius: BorderRadius.circular(5)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // the tab bar with two items
+            SizedBox(
+              height: 50,
+              child: AppBar(
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(
+                      text: 'Accounts',
+                    ),
+                    Tab(
+                      text: 'Other Accounts',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // create widgets for each tab bar here
+            Expanded(
+              child: TabBarView(
                 children: [
-                  const Text(
-                    "Select Account",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  // dropdownButton
+                  // first tab bar view widget
                   Container(
-                    height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    width: double.infinity,
+                    margin: EdgeInsets.all(screenWidth * 0.02),
+                    padding: EdgeInsets.all(screenWidth * 0.03),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 1),
-                          blurRadius: 2.0,
+                        boxShadow: kElevationToShadow[2],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Select Account",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        SizedBox(height: screenHeight * 0.01),
+                        // dropdownButton
+                        Container(
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                offset: Offset(0, 1),
+                                blurRadius: 2.0,
+                              ),
+                            ],
+                            border: Border.all(
+                                color: const Color.fromARGB(255, 149, 147, 147),
+                                width: 1.0), // Rectangular border
+                            borderRadius: BorderRadius.circular(2.0),
+                          ),
+                          child: Center(
+                            child: DropdownButtonFormField<String>(
+                              key: _dropdownKey,
+                              value: selectedValue,
+                              icon: const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: Colors.black), // Right-side down arrow
+                              decoration: const InputDecoration.collapsed(
+                                  hintText: ''), // Remove underline
+                              items: dropdownItems.map((item) {
+                                // Combine accountNumber and sDisplayName for display
+                                String displayText =
+                                    '${item['accountNumber']} - ${item['sDisplayName']}';
+                                return DropdownMenuItem<String>(
+                                  value: item[
+                                      'accountNumber'], // Use accountNumber as the value
+                                  child: Text(displayText),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedValue = newValue;
+                                  // Find the selected account and update closingBalance
+                                  final selectedAccount =
+                                      dropdownItems.firstWhere(
+                                    (item) => item['accountNumber'] == newValue,
+                                  );
+                                  closingBalance =
+                                      selectedAccount['closingBalance']!;
+                                  emi = selectedAccount['eMI'] ?? '0.00';
+                                  monthsDue =
+                                      selectedAccount['monthsDue'] ?? '0';
+                                  receipts =
+                                      selectedAccount['receipts'] ?? '0.00';
+                                  interest =
+                                      selectedAccount['interest'] ?? '0.00';
+                                  // Send the closing balance to the parent screen
+
+                                  setState(() {
+                                    selectedAccountDetails = selectedAccount;
+                                  });
+
+                                  updateClosingBalance(closingBalance);
+                                  updateInstallmentDetails(selectedAccount);
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.02),
+                        Row(
+                          children: [
+                            const Text(
+                              "Current Balance",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '\₹' + formattedBalance,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                          ],
                         ),
                       ],
-                      border: Border.all(color: const Color.fromARGB(255, 149, 147, 147), width: 1.0), // Rectangular border
-                      borderRadius: BorderRadius.circular(2.0),
                     ),
-                    child: Center(
-                      child: DropdownButtonFormField<String>(
-                        key: _dropdownKey,
-                        value: selectedValue,
-                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black), // Right-side down arrow
-                        decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
-                        items: dropdownItems.map((item) {
-                          // Combine accountNumber and sDisplayName for display
-                          String displayText = '${item['accountNumber']} - ${item['sDisplayName']}';
-                          return DropdownMenuItem<String>(
-                            value: item['accountNumber'], // Use accountNumber as the value
-                            child: Text(displayText),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedValue = newValue;
-                            // Find the selected account and update closingBalance
-                            final selectedAccount = dropdownItems.firstWhere(
-                              (item) => item['accountNumber'] == newValue,
-                            );
-                            closingBalance = selectedAccount['closingBalance']!;
-                            emi = selectedAccount['eMI'] ?? '0.00';
-                            monthsDue = selectedAccount['monthsDue'] ?? '0';
-                            receipts = selectedAccount['receipts'] ?? '0.00';
-                            interest = selectedAccount['interest'] ?? '0.00';
-                            // Send the closing balance to the parent screen
+                  ),
 
+                  Container(
+                    width: double.infinity,
+                    height: screenHeight * 0.29,
+                    margin: EdgeInsets.only(
+                        left: screenWidth * 0.03,
+                        right: screenWidth * 0.03,
+                        bottom: screenWidth * 0.01),
+                    // margin: EdgeInsets.all(screenWidth * 0.02),
+                    padding: EdgeInsets.all(screenWidth * 0.01),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: kElevationToShadow[1],
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Installment details",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        SizedBox(
+                          height: screenHeight * 0.01,
+                        ),
+                        CustomFieldInsideContainer(
+                          labeltext: "Months/Days Due",
+                          inputextController: monthsDueController,
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          maxLength: 3,
+                        ),
+                        CustomFieldInsideContainer(
+                          labeltext: " EMi",
+                          inputextController: emitController,
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          maxLength: 7,
+                        ),
+                        CustomFieldInsideContainer(
+                          labeltext: "Amount Paid",
+                          inputextController: amountPaidController,
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          maxLength: 7,
+                          onChanged: (p0) {
                             setState(() {
-                              selectedAccountDetails = selectedAccount;
+                              calculateTotal();
                             });
-
-                            updateClosingBalance(closingBalance);
-                            updateInstallmentDetails(selectedAccount);
-                          });
-                        },
-                      ),
+                          },
+                        ),
+                        CustomFieldInsideContainer(
+                          labeltext: "Interest",
+                          inputextController: interestController,
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          maxLength: 7,
+                          onChanged: (p0) {
+                            setState(() {
+                              calculateTotal();
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
-                  Row(
-                    children: [
-                      const Text(
-                        "Current Balance",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '\₹' + formattedBalance,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                    ],
+                  Container(
+                    width: double.infinity,
+                    height: screenHeight * 0.07,
+                    margin: EdgeInsets.only(
+                        left: screenWidth * 0.03, right: screenWidth * 0.03),
+                    // padding: EdgeInsets.all(screenWidth * 0.04),
+                    decoration: BoxDecoration(
+                        boxShadow: kElevationToShadow[1],
+                        color: const Color.fromARGB(255, 224, 225, 255),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Row(
+                      children: [
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        const Text(
+                          "Total Amount",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        Spacer(),
+                        Text(
+                          '₹${totalAmount.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // second tab bar viiew widget
+
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(screenWidth * 0.02),
+                    padding: EdgeInsets.all(screenWidth * 0.03),
+                    decoration: BoxDecoration(
+                        boxShadow: kElevationToShadow[1],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Select Other Accounts",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        SizedBox(height: screenHeight * 0.01),
+                        CustomDropdown(),
+                        SizedBox(height: screenHeight * 0.02),
+                        Row(
+                          children: [
+                            const Text(
+                              "Amount",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w400),
+                            ),
+                            SizedBox(
+                              width: screenWidth * 0.02,
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                height: screenHeight * 0.05,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Colors.white,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2.0,
+                                    ),
+                                  ],
+                                ),
+                                child: TextFormField(
+                                  textAlign: TextAlign.end,
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w400),
+                                  decoration: InputDecoration(
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Container(
-              width: double.infinity,
-              height: screenHeight * 0.29,
-              margin: EdgeInsets.only(left: screenWidth * 0.03, right: screenWidth * 0.03, bottom: screenWidth * 0.01),
-              // margin: EdgeInsets.all(screenWidth * 0.02),
-              padding: EdgeInsets.all(screenWidth * 0.01),
-              decoration: BoxDecoration(color: Colors.white, boxShadow: kElevationToShadow[1], borderRadius: BorderRadius.circular(5)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Installment details",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  SizedBox(
-                    height: screenHeight * 0.01,
-                  ),
-                  CustomFieldInsideContainer(
-                    labeltext: "Months/Days Due",
-                    inputextController: monthsDueController,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    maxLength: 3,
-                  ),
-                  CustomFieldInsideContainer(
-                    labeltext: " EMi",
-                    inputextController: emitController,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    maxLength: 7,
-                  ),
-                  CustomFieldInsideContainer(
-                    labeltext: "Amount Paid",
-                    inputextController: amountPaidController,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    maxLength: 7,
-                    onChanged: (p0) {
-                      setState(() {
-                        calculateTotal();
-                      });
-                    },
-                  ),
-                  CustomFieldInsideContainer(
-                    labeltext: "Interest",
-                    inputextController: interestController,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    maxLength: 7,
-                    onChanged: (p0) {
-                      setState(() {
-                        calculateTotal();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              height: screenHeight * 0.07,
-              margin: EdgeInsets.only(left: screenWidth * 0.03, right: screenWidth * 0.03),
-              // padding: EdgeInsets.all(screenWidth * 0.04),
-              decoration: BoxDecoration(
-                  boxShadow: kElevationToShadow[1],
-                  color: const Color.fromARGB(255, 224, 225, 255),
-                  borderRadius: BorderRadius.circular(5)),
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 6,
-                  ),
-                  const Text(
-                    "Total Amount",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  Spacer(),
-                  Text(
-                    '₹${totalAmount.toStringAsFixed(0)}',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  const SizedBox(
-                    width: 6,
-                  ),
-                ],
-              ),
-            ),
-            Spacer(),
 
             CustomBottomButtons(
               screenWidth: screenWidth,
@@ -425,9 +568,10 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MemberDetailsFinalScreen(
-                            accountAddedList: accountAddedList,
-                          )),
+                    builder: (context) => MemberDetailsFinalScreen(
+                      accountAddedList: accountAddedList,
+                    ),
+                  ),
                 );
               },
             )
@@ -497,84 +641,6 @@ class CustomBottomButtons extends StatelessWidget {
   }
 }
 
-// class CustomDropdown extends StatefulWidget {
-//   final Function(String) onBalanceChanged; // Callback function
-//   List<MemberAccountDetailsModel>? accountDetailsList;
-//   Map<String, dynamic>? selectedAccountDetails;
-
-//   final Function(Map<String, String>) onAccountSelected; // New callback for account details
-
-//   CustomDropdown(
-//       {Key? key,
-//       required this.onBalanceChanged,
-//       required this.onAccountSelected,
-//       required this.accountDetailsList,
-//       this.selectedAccountDetails})
-//       : super(key: key);
-
-//   @override
-//   _CustomDropdownState createState() => _CustomDropdownState();
-// }
-
-// class _CustomDropdownState extends State<CustomDropdown> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       height: 40,
-//       padding: const EdgeInsets.symmetric(horizontal: 10),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         boxShadow: const [
-//           BoxShadow(
-//             color: Colors.black26,
-//             offset: Offset(0, 1),
-//             blurRadius: 2.0,
-//           ),
-//         ],
-//         border: Border.all(color: const Color.fromARGB(255, 149, 147, 147), width: 1.0), // Rectangular border
-//         borderRadius: BorderRadius.circular(2.0),
-//       ),
-//       child: Center(
-//         child: DropdownButtonFormField<String>(
-//           value: selectedValue,
-//           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black), // Right-side down arrow
-//           decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
-//           items: dropdownItems.map((item) {
-//             // Combine accountNumber and sDisplayName for display
-//             String displayText = '${item['accountNumber']} - ${item['sDisplayName']}';
-//             return DropdownMenuItem<String>(
-//               value: item['accountNumber'], // Use accountNumber as the value
-//               child: Text(displayText),
-//             );
-//           }).toList(),
-//           onChanged: (newValue) {
-//             setState(() {
-//               selectedValue = newValue;
-//               // Find the selected account and update closingBalance
-//               final selectedAccount = dropdownItems.firstWhere(
-//                 (item) => item['accountNumber'] == newValue,
-//               );
-//               closingBalance = selectedAccount['closingBalance'];
-//               emi = selectedAccount['eMI'] ?? '0.00';
-//               monthsDue = selectedAccount['monthsDue'] ?? '0';
-//               receipts = selectedAccount['receipts'] ?? '0.00';
-//               interest = selectedAccount['interest'] ?? '0.00';
-//               // Send the closing balance to the parent screen
-
-//               setState(() {
-//                 widget.selectedAccountDetails = selectedAccount;
-//               });
-
-//               widget.onAccountSelected(selectedAccount);
-//               widget.onBalanceChanged(closingBalance ?? '0.00');
-//             });
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 class CustomRowWithIconWidget extends StatelessWidget {
   const CustomRowWithIconWidget({
     super.key,
@@ -603,9 +669,12 @@ class CustomRowWithIconWidget extends StatelessWidget {
                 margin: EdgeInsets.only(right: screenWidth * 0.04),
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(width: 1.0, color: Colors.black), // Top border
-                    bottom: BorderSide(width: 1.0, color: Colors.black), // Top border
-                    left: BorderSide(width: 1.0, color: Colors.black), // Left border
+                    top: BorderSide(
+                        width: 1.0, color: Colors.black), // Top border
+                    bottom: BorderSide(
+                        width: 1.0, color: Colors.black), // Top border
+                    left: BorderSide(
+                        width: 1.0, color: Colors.black), // Left border
                   ),
                 ),
               )
@@ -629,34 +698,16 @@ class CustomRowWithIconWidget extends StatelessWidget {
   }
 }
 
-class TabBarscreen1 extends StatelessWidget {
-  const TabBarscreen1({super.key});
+class TabBarScreenAccount extends StatefulWidget {
+  const TabBarScreenAccount({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(
-      children: [
-        Center(
-          child: Text('screenone'),
-        )
-      ],
-    ));
-  }
+  State<TabBarScreenAccount> createState() => _TabBarScreenAccountState();
 }
 
-class TabBarscreen2 extends StatelessWidget {
-  const TabBarscreen2({super.key});
-
+class _TabBarScreenAccountState extends State<TabBarScreenAccount> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(
-      children: [
-        Center(
-          child: Text('screenone'),
-        )
-      ],
-    ));
+    return Container();
   }
 }

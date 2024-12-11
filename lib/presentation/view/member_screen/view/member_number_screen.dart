@@ -17,7 +17,8 @@ class MemberNumber extends StatefulWidget {
 }
 
 class _MemberNumberState extends State<MemberNumber> {
-  final TextEditingController _membershipNumberController = TextEditingController();
+  final TextEditingController _membershipNumberController =
+      TextEditingController();
   String? memberName;
   String? fatherName;
   String? groupnumber;
@@ -35,30 +36,32 @@ class _MemberNumberState extends State<MemberNumber> {
     final result = widget.loginResponse['result'];
 
     final userName = result != null ? result['UserName'] : 'Unknown User';
-    final organizationDetails = result != null ? result['DisplayName'] : 'No Display Name';
+    final organizationDetails =
+        result != null ? result['DisplayName'] : 'No Display Name';
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromARGB(255, 242, 242, 242),
       appBar: AppBar(
         // toolbarHeight: mediaQuery.size.height * 0.05,
-        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0, centerTitle: true,
         title: Text(
           userName,
           style: TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
         ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_arrow_left,
-            color: Colors.white,
-            size: 25,
-          ),
-          onPressed: (() {
-            Navigator.of(context).pop();
-          }),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(
+        //     Icons.keyboard_arrow_left,
+        //     color: Colors.white,
+        //     size: 25,
+        //   ),
+        //   onPressed: (() {
+        //     Navigator.of(context).pop();
+        //   }),
+        // ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -85,6 +88,7 @@ class _MemberNumberState extends State<MemberNumber> {
             screenHeight: screenHeight,
             membershipNumberController: _membershipNumberController,
             getMembershipDetails: () async {
+              FocusScope.of(context).unfocus();
               membershipFechedDetails = await getMembershipDetails();
 
               log("fetched values -- ${membershipFechedDetails!.displayName}");
@@ -107,8 +111,9 @@ class _MemberNumberState extends State<MemberNumber> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        MemberDetailsScreen(memberDetails: membershipFechedDetails!, loginResponse: widget.loginResponse)),
+                    builder: (context) => MemberDetailsScreen(
+                        memberDetails: membershipFechedDetails!,
+                        loginResponse: widget.loginResponse)),
               );
             },
             resetButton: () {},
@@ -137,7 +142,8 @@ class _MemberNumberState extends State<MemberNumber> {
     try {
       // Make the POST request
       var response = await http.post(
-        Uri.parse('http://154.38.175.150:8090/api/members/getMembershipDetails'),
+        Uri.parse(
+            'http://154.38.175.150:8090/api/members/getMembershipDetails'),
         headers: headers,
         body: json.encode(membershipData.toJson()),
       );
@@ -150,7 +156,8 @@ class _MemberNumberState extends State<MemberNumber> {
         // Extract `result` and parse it into a model
         var result = responseData['result'];
 
-        MemberShipDetailsModel memberResult = MemberShipDetailsModel.fromJson(result);
+        MemberShipDetailsModel memberResult =
+            MemberShipDetailsModel.fromJson(result);
 
         setState(() {
           memberName = memberResult.memberName;
@@ -202,19 +209,22 @@ class _CustomBottomButtonsState extends State<CustomBottomButtons> {
       //   vertical: screenHeight * 0.01,
       //   horizontal: screenWidth * 0.04,
       // ),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(buttonText: "RESET", onPressed: widget.resetButton),
+              child: CustomTextButton(
+                  buttonText: "RESET", onPressed: widget.resetButton),
             ),
           ),
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(buttonText: "NEXT", onPressed: widget.nextButton),
+              child: CustomTextButton(
+                  buttonText: "NEXT", onPressed: widget.nextButton),
             ),
           ),
         ],
@@ -247,7 +257,8 @@ class CustomMiddleMemberDetails extends StatelessWidget {
       height: screenHeight * 0.33,
       margin: EdgeInsets.all(screenWidth * 0.02),
       padding: EdgeInsets.all(screenWidth * 0.03),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -303,10 +314,12 @@ class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
   final TextEditingController membershipNumberController;
 
   @override
-  State<CustomheaderWidgetMemberShipNumber> createState() => _CustomheaderWidgetMemberShipNumberState();
+  State<CustomheaderWidgetMemberShipNumber> createState() =>
+      _CustomheaderWidgetMemberShipNumberState();
 }
 
-class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetMemberShipNumber> {
+class _CustomheaderWidgetMemberShipNumberState
+    extends State<CustomheaderWidgetMemberShipNumber> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -314,7 +327,8 @@ class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetM
       width: double.infinity,
       margin: EdgeInsets.all(widget.screenWidth * 0.02),
       padding: EdgeInsets.all(widget.screenWidth * 0.03),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -345,7 +359,8 @@ class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetM
                     controller: widget.membershipNumberController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+                    style: const TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(5),
@@ -438,7 +453,8 @@ class CustomField extends StatelessWidget {
               width: screenHeight * 0.16,
               child: Text(
                 labeltext,
-                style: TextStyle(fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
+                style: TextStyle(
+                    fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
               ),
             ),
             Container(

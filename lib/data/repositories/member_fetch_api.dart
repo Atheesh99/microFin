@@ -1,32 +1,32 @@
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
-// import 'package:microfin/presentation/view/member_screen/model/membership_fetch_model.dart';
+// File: api_service.dart
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:microfin/presentation/view/member_screen/model/member_accountdetails_model.dart';
 
-// class MembershipNumberService {
-//   // Method to send MembershipNumber data via HTTP POST
-//   Future<void> sendMembershipNumber(MembershipNum membershipNumber) async {
-//     final url = Uri.parse(
-//         'https://your-api-endpoint.com/submit'); // Replace with your actual API endpoint
+class ApiService {
+  static const String _baseUrl = 'http://154.38.175.150:8090/api/mobile';
 
-//     // Prepare the body data by converting the MembershipNumber object to JSON
-//     final body = json.encode(membershipNumber.toJson());
+  Future<List<MemberAccountDetailsModel>> fetchMemberAccounts(
+      String membershipID, String receiptDate) async {
+    final uri = Uri.parse('$_baseUrl/getMemberAccountsForReceipts')
+        .replace(queryParameters: {
+      'MembershipID': membershipID,
+      'ReceiptDate': receiptDate,
+    });
 
-//     try {
-//       // Send the HTTP POST request
-//       final response = await http.post(
-//         url,
-//         headers: {'Content-Type': 'application/json'},
-//         body: body,
-//       );
+    final response = await http.get(uri);
 
-//       if (response.statusCode == 200) {
-//         print('Success: Data sent successfully');
-//       } else {
-//         print(
-//             'Error: Failed to send data, Status code: ${response.statusCode}');
-//       }
-//     } catch (e) {
-//       print('Error: Failed to send data. Exception: $e');
-//     }
-//   }
-// }
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseJson = jsonDecode(response.body);
+      final String result = responseJson['result'];
+      final Map<String, dynamic> resultJson = jsonDecode(result);
+
+      return (resultJson['AccountDetails'] as List)
+          .map((e) =>
+              MemberAccountDetailsModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else {
+      throw Exception('Failed to fetch accounts: ${response.reasonPhrase}');
+    }
+  }
+}
