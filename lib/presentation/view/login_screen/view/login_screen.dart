@@ -138,17 +138,6 @@ class _LoginScreenState extends State<LoginScreen> {
             color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0,
-        // actions: <Widget>[
-        //   IconButton(
-        //     icon: const Icon(
-        //       Icons.logout,
-        //       color: Colors.white,
-        //     ),
-        //     onPressed: () {
-        //       // do something
-        //     },
-        //   )
-        // ],
       ),
       body: Container(
         decoration: const BoxDecoration(

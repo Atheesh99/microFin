@@ -6,6 +6,7 @@ class CustomTextButton extends StatelessWidget {
   final double? height;
   final String buttonText;
   final VoidCallback? onPressed;
+  final Color? buttonColor;
 
   const CustomTextButton({
     super.key,
@@ -13,6 +14,7 @@ class CustomTextButton extends StatelessWidget {
     this.height = 50,
     required this.buttonText,
     this.onPressed,
+    this.buttonColor,
   });
 
   @override
@@ -27,7 +29,7 @@ class CustomTextButton extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: bColor,
             // backgroundColor: const Color.fromARGB(255, 222, 217, 217),
-            backgroundColor: appbarColor,
+            backgroundColor: buttonColor ?? appbarColor,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20)),
               side: BorderSide(

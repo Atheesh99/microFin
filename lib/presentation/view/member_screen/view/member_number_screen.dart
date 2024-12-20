@@ -52,16 +52,6 @@ class _MemberNumberState extends State<MemberNumber> {
           userName,
           style: TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
         ),
-        // leading: IconButton(
-        //   icon: const Icon(
-        //     Icons.keyboard_arrow_left,
-        //     color: Colors.white,
-        //     size: 25,
-        //   ),
-        //   onPressed: (() {
-        //     Navigator.of(context).pop();
-        //   }),
-        // ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -102,21 +92,27 @@ class _MemberNumberState extends State<MemberNumber> {
             screenWidth: screenWidth,
             screenHeight: screenHeight,
           ),
-          // SizedBox(
-          //   height: screenHeight * 0.25,
-          // ),
-          Spacer(),
+          const Spacer(),
           CustomBottomButtons(
             nextButton: () {
-              Navigator.push(
-                context,
+              Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (context) => MemberDetailsScreen(
-                        memberDetails: membershipFechedDetails!,
-                        loginResponse: widget.loginResponse)),
+                  builder: (context) => MemberDetailsScreen(
+                      memberDetails: membershipFechedDetails!,
+                      loginResponse: widget.loginResponse),
+                ),
               );
             },
-            resetButton: () {},
+            resetButton: () {
+              setState(() {
+                memberName = "";
+                fatherName = "";
+                groupnumber = "";
+                groupnumber = "";
+                dateofJoin = "";
+                _membershipNumberController.clear();
+              });
+            },
             screenWidth: screenWidth,
             screenHeight: screenHeight,
             loginResponse: widget.loginResponse,

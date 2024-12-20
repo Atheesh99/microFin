@@ -8,12 +8,12 @@ class CustomFieldInsideContainer extends StatelessWidget {
       required this.inputextController,
       required this.screenWidth,
       required this.screenHeight,
-      required this.maxLength,
+      this.maxLength,
       this.onChanged});
   final String labeltext;
   final TextEditingController inputextController;
   final IconData? icon;
-  final int maxLength;
+  final int? maxLength;
   final double screenWidth;
   final double screenHeight;
   final Function(String)? onChanged;
@@ -58,9 +58,10 @@ class CustomFieldInsideContainer extends StatelessWidget {
                 onChanged: onChanged,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 controller: inputextController,
-                // maxLength: maxLength,
+                maxLength: maxLength,
                 // textAlign: TextAlign.end,
                 decoration: InputDecoration(
+                  counterText: '',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),

@@ -41,6 +41,7 @@ class CustomTextWithTextFormField extends StatelessWidget {
             shadowColor: Colors.grey.withOpacity(0.5),
             borderRadius: BorderRadius.circular(5),
             child: TextFormField(
+              keyboardType: TextInputType.number,
               validator: validator,
               controller: controller,
               textAlign: TextAlign.start,

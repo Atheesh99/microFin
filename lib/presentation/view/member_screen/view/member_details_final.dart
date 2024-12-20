@@ -3,20 +3,71 @@ import 'package:microfin/core/constants/colour.dart';
 import 'package:microfin/presentation/widgets/custom_popup.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
-class MemberDetailsFinalScreen extends StatelessWidget {
-  MemberDetailsFinalScreen({super.key, required this.accountAddedList});
+class MemberDetailsFinalScreen extends StatefulWidget {
+  const MemberDetailsFinalScreen({super.key, required this.accountAddedList});
 
   final List<Map<String, dynamic>> accountAddedList;
 
   @override
+  State<MemberDetailsFinalScreen> createState() =>
+      _MemberDetailsFinalScreenState();
+}
+
+class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
+  @override
   Widget build(BuildContext context) {
+    double calculateTotalAmount() {
+      double total = 0.0;
+
+      // Add amounts from accountAddedList
+      for (var item in widget.accountAddedList) {
+        total += double.tryParse(item['receipts'].toString()) ?? 0.0;
+        total += double.tryParse(item['interest'].toString()) ?? 0.0;
+      }
+
+      // Add static amounts
+      total += 0.0; // Penalty
+      total += 0.0; // Member fee
+
+      return total;
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    void showDeleteConfirmation(BuildContext context, int index) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Item'),
+          content: const Text('Are you sure you want to delete this item?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  widget.accountAddedList.removeAt(index);
+                });
+                // Remove the item
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         // toolbarHeight: mediaQuery.size.height * 7,
         centerTitle: true,
         title: const Text("Name of the Organization"),
@@ -24,16 +75,6 @@ class MemberDetailsFinalScreen extends StatelessWidget {
             color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_arrow_left,
-            color: Colors.white,
-            size: 25,
-          ),
-          onPressed: (() {
-            Navigator.of(context).pop();
-          }),
-        ),
       ),
       body: Column(
         children: [
@@ -54,96 +95,73 @@ class MemberDetailsFinalScreen extends StatelessWidget {
                 ),
               )),
           Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(screenWidth * 0.02),
-              padding: EdgeInsets.all(screenWidth * 0.05),
-              decoration: BoxDecoration(
-                  boxShadow: kElevationToShadow[1],
-                  color: const Color.fromARGB(255, 241, 231, 231),
-                  borderRadius: BorderRadius.circular(5)),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Total Amount",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-                  ),
-                  Text(
-                    "0.00",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-                  ),
-                ],
-              )),
-
-          Expanded(
-            child: ListView.builder(
-              itemCount: accountAddedList.length,
-              itemBuilder: (context, index) {
-                var item = accountAddedList[index];
-                return Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(screenWidth * 0.02),
-                    padding: EdgeInsets.all(screenWidth * 0.03),
-                    decoration: BoxDecoration(
-                        boxShadow: kElevationToShadow[1],
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Column(
-                      children: [
-                        CustomRowWithIconWidget(
-                          screenWidth: screenWidth,
-                          isIcon: true,
-                          name: item['sDisplayName'],
-                          amount: item['eMI'],
-                          screenHeight: screenHeight,
-                        ),
-                      ],
-                    ));
-              },
+            width: double.infinity,
+            margin: EdgeInsets.all(screenWidth * 0.02),
+            padding: EdgeInsets.all(screenWidth * 0.05),
+            decoration: BoxDecoration(
+              boxShadow: kElevationToShadow[1],
+              color: const Color.fromARGB(255, 241, 231, 231),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Total Amount",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                ),
+                Text(
+                  calculateTotalAmount().toStringAsFixed(2),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                ),
+              ],
             ),
           ),
-          // Container(
-          //     width: double.infinity,
-          //     margin: EdgeInsets.all(screenWidth * 0.02),
-          //     padding: EdgeInsets.all(screenWidth * 0.03),
-          //     decoration: BoxDecoration(
-          //         boxShadow: kElevationToShadow[1],
-          //         color: Colors.white,
-          //         borderRadius: BorderRadius.circular(5)),
-          //     child: Column(
-          //       children: [
-          //         CustomRowWithIconWidget(
-          //           screenWidth: screenWidth,
-          //           isIcon: true,
-          //           name: "Member Loan",
-          //           amount: "0.00",
-          //           screenHeight: screenHeight,
-          //         ),
-          //         // CustomRowWithIconWidget(
-          //         //   screenWidth: screenWidth,
-          //         //   isIcon: false,
-          //         //   name: "Amount",
-          //         //   amount: "0.00",
-          //         //   screenHeight: screenHeight,
-          //         // ),
-          //         CustomRowWithIconWidget(
-          //           screenWidth: screenWidth,
-          //           isIcon: false,
-          //           name: "Interest",
-          //           amount: "0.00",
-          //           screenHeight: screenHeight,
-          //         ),
-          //       ],
-          //     )),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.accountAddedList.length,
+            itemBuilder: (context, index) {
+              var item = widget.accountAddedList[index];
 
+              return Container(
+                width: double.infinity,
+                margin: EdgeInsets.all(screenWidth * 0.02),
+                padding: EdgeInsets.all(screenWidth * 0.03),
+                decoration: BoxDecoration(
+                    boxShadow: kElevationToShadow[1],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5)),
+                child: Column(
+                  children: [
+                    CustomRowWithIconWidget(
+                      screenWidth: screenWidth,
+                      isIcon: true,
+                      name: item['sDisplayName'],
+                      amount: item['receipts'].toString(),
+                      screenHeight: screenHeight,
+                      onDelete: () => showDeleteConfirmation(context, index),
+                    ),
+                    CustomRowWithIconWidget(
+                      screenWidth: screenWidth,
+                      isIcon: false,
+                      name: "Interest",
+                      amount: item['interest'].toString(),
+                      screenHeight: screenHeight,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Container(
             width: double.infinity,
             margin: EdgeInsets.all(screenWidth * 0.02),
             padding: EdgeInsets.all(screenWidth * 0.03),
             decoration: BoxDecoration(
-                boxShadow: kElevationToShadow[1],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5)),
+              boxShadow: kElevationToShadow[1],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+            ),
             child: Column(
               children: [
                 CustomRowWithIconWidget(
@@ -156,24 +174,18 @@ class MemberDetailsFinalScreen extends StatelessWidget {
                 CustomRowWithIconWidget(
                   screenWidth: screenWidth,
                   isIcon: true,
-                  name: "Passbook",
-                  amount: "0.00",
-                  screenHeight: screenHeight,
-                ),
-                CustomRowWithIconWidget(
-                  screenWidth: screenWidth,
-                  isIcon: true,
-                  name: "Calender",
+                  name: "Member fee",
                   amount: "0.00",
                   screenHeight: screenHeight,
                 ),
               ],
             ),
           ),
-
           const Spacer(),
           CustomBottomButtons(
-              screenWidth: screenWidth, screenHeight: screenHeight)
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+          ),
         ],
       ),
     );
@@ -207,36 +219,15 @@ class CustomBottomButtons extends StatelessWidget {
             child: SizedBox(
               height: screenHeight * 0.05,
               child: CustomTextButton(
-                buttonText: "OTHER ACCOUNTS",
+                buttonText: "BACK",
                 onPressed: () {
-                  //////////////////////////////
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return CustomPopup(
-                        title: 'Popup Title',
-                        saveButtonText: 'Save',
-                        onCancelPressed: () {
-                          Navigator.of(context).pop(); // Close popup on cancel
-                        },
-                        onUpdatePressed: () {
-                          // Handle save/update logic here
-                          Navigator.of(context).pop(); // Close popup on update
-                        },
-                        children: const [
-                          Text('Content goes here'),
-                        ],
-                      );
-                    },
-                  );
+                  /////////////////////////////
+                  Navigator.of(context).pop();
                   /////////////////////
                 },
               ),
             ),
           ),
-          // SizedBox(
-          //   width: screenWidth * 0.012,
-          // ),
           Expanded(
             child: SizedBox(
               height: screenHeight * 0.05,
@@ -276,59 +267,6 @@ class CustomBottomButtons extends StatelessWidget {
   }
 }
 
-class CustomDropdown extends StatefulWidget {
-  const CustomDropdown({super.key});
-
-  @override
-  _CustomDropdownState createState() => _CustomDropdownState();
-}
-
-class _CustomDropdownState extends State<CustomDropdown> {
-  String? selectedValue;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            offset: Offset(0, 1),
-            blurRadius: 2.0,
-          ),
-        ], // Rectangular border
-        borderRadius: BorderRadius.circular(2.0),
-      ),
-      child: Center(
-        child: DropdownButtonFormField<String>(
-          value: selectedValue,
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.black,
-          ), // Right-side down arrow
-          decoration:
-              const InputDecoration.collapsed(hintText: ''), // Remove underline
-          items:
-              <String>['Option 1', 'Option 2', 'Option 3'].map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (newValue) {
-            setState(() {
-              selectedValue = newValue;
-            });
-          },
-        ),
-      ),
-    );
-  }
-}
-
 class CustomRowWithIconWidget extends StatelessWidget {
   const CustomRowWithIconWidget({
     super.key,
@@ -337,6 +275,7 @@ class CustomRowWithIconWidget extends StatelessWidget {
     required this.name,
     required this.amount,
     required this.screenHeight,
+    this.onDelete,
   });
 
   final double screenWidth;
@@ -344,6 +283,7 @@ class CustomRowWithIconWidget extends StatelessWidget {
   final bool isIcon;
   final String name;
   final String amount;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -351,23 +291,15 @@ class CustomRowWithIconWidget extends StatelessWidget {
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         isIcon
-            ? Container(
-                width: screenWidth * 0.03,
-                height: screenHeight * 0.012,
-                margin: EdgeInsets.only(right: screenWidth * 0.04),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                        width: 1.0, color: Colors.black), // Top border
-                    bottom: BorderSide(
-                        width: 1.0, color: Colors.black), // Top border
-                    left: BorderSide(
-                        width: 1.0, color: Colors.black), // Left border
-                  ),
+            ? IconButton(
+                onPressed: onDelete,
+                icon: const Icon(
+                  Icons.close_rounded,
+                  size: 19,
                 ),
               )
             : SizedBox(
-                width: screenWidth * 0.07,
+                width: screenWidth * 0.11,
               ),
         Text(
           name,
