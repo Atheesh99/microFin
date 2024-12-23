@@ -17,8 +17,7 @@ class MemberNumber extends StatefulWidget {
 }
 
 class _MemberNumberState extends State<MemberNumber> {
-  final TextEditingController _membershipNumberController =
-      TextEditingController();
+  final TextEditingController _membershipNumberController = TextEditingController();
   String? memberName;
   String? fatherName;
   String? groupnumber;
@@ -28,6 +27,8 @@ class _MemberNumberState extends State<MemberNumber> {
 
   MemberShipDetailsModel? membershipFechedDetails;
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -36,88 +37,158 @@ class _MemberNumberState extends State<MemberNumber> {
     final result = widget.loginResponse['result'];
 
     final userName = result != null ? result['UserName'] : 'Unknown User';
-    final organizationDetails =
-        result != null ? result['DisplayName'] : 'No Display Name';
+    final organizationDetails = result != null ? result['DisplayName'] : 'No Display Name';
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromARGB(255, 242, 242, 242),
       appBar: AppBar(
         // toolbarHeight: mediaQuery.size.height * 0.05,
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0, centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           userName,
           style: TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
         ),
+
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.logout, color: Colors.white))],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            height: screenHeight * 0.09,
-            // margin: EdgeInsets.all(screenWidth * 0.02),
-            // padding: EdgeInsets.all(screenWidth * 0.05),
-            decoration: BoxDecoration(
-              boxShadow: kElevationToShadow[1],
-              color: const Color.fromARGB(255, 224, 225, 255),
-              borderRadius: BorderRadius.circular(5),
+      drawer: Drawer(
+        child: ListView(
+          padding: const EdgeInsets.all(0),
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue.shade800,
+              ), //BoxDecoration
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CircleAvatar(
+                    radius: 45,
+                    child: Text("M"),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "MicroFin",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ],
+              ),
+            ), //DrawerHeader
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
-            child: Center(
-              child: Text(
-                organizationDetails,
-                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+            ListTile(
+              leading: const Icon(Icons.money),
+              title: const Text('Cash Summary'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('LogOut'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              height: screenHeight * 0.09,
+              // margin: EdgeInsets.all(screenWidth * 0.02),
+              // padding: EdgeInsets.all(screenWidth * 0.05),
+              decoration: BoxDecoration(
+                boxShadow: kElevationToShadow[1],
+                color: const Color.fromARGB(255, 224, 225, 255),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Center(
+                child: Text(
+                  organizationDetails,
+                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+                ),
               ),
             ),
-          ),
-          CustomheaderWidgetMemberShipNumber(
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-            membershipNumberController: _membershipNumberController,
-            getMembershipDetails: () async {
-              FocusScope.of(context).unfocus();
-              membershipFechedDetails = await getMembershipDetails();
+            CustomheaderWidgetMemberShipNumber(
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Enter Membership Number';
+                }
+                return null;
+              },
+              membershipNumberController: _membershipNumberController,
+              getMembershipDetails: () async {
+                if (_formKey.currentState!.validate()) {
+                  FocusScope.of(context).unfocus();
+                  log("fetched values -- ");
+                  membershipFechedDetails = await getMembershipDetails();
 
-              log("fetched values -- ${membershipFechedDetails!.displayName}");
-            },
-          ),
-          CustomMiddleMemberDetails(
-            memberName: memberName,
-            dateofJoin: dateofJoin,
-            fatherName: fatherName,
-            groupnumber: groupnumber,
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-          ),
-          const Spacer(),
-          CustomBottomButtons(
-            nextButton: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => MemberDetailsScreen(
-                      memberDetails: membershipFechedDetails!,
-                      loginResponse: widget.loginResponse),
-                ),
-              );
-            },
-            resetButton: () {
-              setState(() {
-                memberName = "";
-                fatherName = "";
-                groupnumber = "";
-                groupnumber = "";
-                dateofJoin = "";
-                _membershipNumberController.clear();
-              });
-            },
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-            loginResponse: widget.loginResponse,
-          ),
-        ],
+                  log("fetched values -- ${membershipFechedDetails!.displayName}");
+                }
+              },
+            ),
+            CustomMiddleMemberDetails(
+              memberName: memberName,
+              dateofJoin: dateofJoin,
+              fatherName: fatherName,
+              groupnumber: groupnumber,
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+            ),
+            const Spacer(),
+            CustomBottomButtons(
+              nextButton: () {
+                if (membershipFechedDetails == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      duration: Duration(seconds: 2),
+                      content: Text('Member details not found'),
+                    ),
+                  );
+                } else {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MemberDetailsScreen(memberDetails: membershipFechedDetails!, loginResponse: widget.loginResponse),
+                    ),
+                  );
+                }
+              },
+              resetButton: () {
+                setState(() {
+                  memberName = "";
+                  fatherName = "";
+                  groupnumber = "";
+                  groupnumber = "";
+                  dateofJoin = "";
+                  _membershipNumberController.clear();
+                });
+              },
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+              loginResponse: widget.loginResponse,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -138,8 +209,7 @@ class _MemberNumberState extends State<MemberNumber> {
     try {
       // Make the POST request
       var response = await http.post(
-        Uri.parse(
-            'http://154.38.175.150:8090/api/members/getMembershipDetails'),
+        Uri.parse('http://154.38.175.150:8090/api/members/getMembershipDetails'),
         headers: headers,
         body: json.encode(membershipData.toJson()),
       );
@@ -152,8 +222,7 @@ class _MemberNumberState extends State<MemberNumber> {
         // Extract `result` and parse it into a model
         var result = responseData['result'];
 
-        MemberShipDetailsModel memberResult =
-            MemberShipDetailsModel.fromJson(result);
+        MemberShipDetailsModel memberResult = MemberShipDetailsModel.fromJson(result);
 
         setState(() {
           memberName = memberResult.memberName;
@@ -201,26 +270,19 @@ class _CustomBottomButtonsState extends State<CustomBottomButtons> {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.all(widget.screenWidth * 0.02),
-      // padding: EdgeInsets.symmetric(
-      //   vertical: screenHeight * 0.01,
-      //   horizontal: screenWidth * 0.04,
-      // ),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(
-                  buttonText: "RESET", onPressed: widget.resetButton),
+              child: CustomTextButton(buttonText: "RESET", onPressed: widget.resetButton),
             ),
           ),
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(
-                  buttonText: "NEXT", onPressed: widget.nextButton),
+              child: CustomTextButton(buttonText: "NEXT", onPressed: widget.nextButton),
             ),
           ),
         ],
@@ -304,20 +366,21 @@ class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
     required this.screenHeight,
     required this.getMembershipDetails,
     required this.membershipNumberController,
+    required this.validator,
   });
 
   final double screenWidth;
   final double screenHeight;
   final VoidCallback getMembershipDetails;
+  final FormFieldValidator<String> validator;
+
   final TextEditingController membershipNumberController;
 
   @override
-  State<CustomheaderWidgetMemberShipNumber> createState() =>
-      _CustomheaderWidgetMemberShipNumberState();
+  State<CustomheaderWidgetMemberShipNumber> createState() => _CustomheaderWidgetMemberShipNumberState();
 }
 
-class _CustomheaderWidgetMemberShipNumberState
-    extends State<CustomheaderWidgetMemberShipNumber> {
+class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetMemberShipNumber> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -325,8 +388,7 @@ class _CustomheaderWidgetMemberShipNumberState
       width: double.infinity,
       margin: EdgeInsets.all(widget.screenWidth * 0.02),
       padding: EdgeInsets.all(widget.screenWidth * 0.03),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -357,45 +419,34 @@ class _CustomheaderWidgetMemberShipNumberState
                     controller: widget.membershipNumberController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w400),
+                    validator: widget.validator,
+                    maxLength: 6,
+                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.black12,
-                          width: 1.0,
+                        counterText: '',
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: const BorderSide(
+                            color: Colors.black12,
+                            width: 1.0,
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.black12,
-                          width: 1.0,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: const BorderSide(
+                            color: Colors.black12,
+                            width: 1.0,
+                          ),
                         ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.black12,
-                          width: 1.0,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: const BorderSide(
+                            color: Colors.black12,
+                            width: 1.0,
+                          ),
                         ),
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.black12,
-                          width: 1.0,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.black12,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
+                        focusedErrorBorder: InputBorder.none),
                   ),
                 ),
               ),
@@ -444,35 +495,20 @@ class CustomField extends StatelessWidget {
           height: screenHeight * 0.009,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
               width: screenHeight * 0.16,
               child: Text(
                 labeltext,
-                style: TextStyle(
-                    fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
+                style: TextStyle(fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
               ),
             ),
-            Container(
-              height: screenHeight * 0.05,
-              width: screenWidth * 0.45,
-              margin: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.white,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black38,
-                    offset: Offset(0, 1),
-                    blurRadius: 2.0,
-                  ),
-                ],
-              ),
+            Expanded(
               child: Container(
                 height: screenHeight * 0.05,
-                padding: const EdgeInsets.only(left: 4, top: 12),
+                margin: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   color: Colors.white,
@@ -484,9 +520,24 @@ class CustomField extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Text(
-                  inputext,
-                  style: const TextStyle(fontSize: 15),
+                child: Container(
+                  height: screenHeight * 0.05,
+                  padding: const EdgeInsets.only(left: 4, top: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black38,
+                        offset: Offset(0, 1),
+                        blurRadius: 2.0,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    inputext,
+                    style: const TextStyle(fontSize: 15),
+                  ),
                 ),
               ),
             ),

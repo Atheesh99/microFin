@@ -6,19 +6,14 @@ import 'package:microfin/presentation/widgets/custom_popup.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
 class MemberDetailsFinalScreen extends StatefulWidget {
-  const MemberDetailsFinalScreen(
-      {super.key,
-      required this.accountAddedList,
-      required this.memberDetails,
-      required this.loginResponse});
+  const MemberDetailsFinalScreen({super.key, required this.accountAddedList, required this.memberDetails, required this.loginResponse});
 
   final List<Map<String, dynamic>> accountAddedList;
   final MemberShipDetailsModel memberDetails;
   final Map<String, dynamic> loginResponse;
 
   @override
-  State<MemberDetailsFinalScreen> createState() =>
-      _MemberDetailsFinalScreenState();
+  State<MemberDetailsFinalScreen> createState() => _MemberDetailsFinalScreenState();
 }
 
 class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
@@ -29,8 +24,7 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
     final memberName = widget.memberDetails.memberName ?? 'Unknown Member';
     final groupNumber = widget.memberDetails.groupNumber ?? "";
     final membershipNumber = widget.memberDetails.membershipNumber ?? "";
-    final organizationDetails =
-        result != null ? result['DisplayName'] : 'No Display Name';
+    final organizationDetails = result != null ? result['DisplayName'] : 'No Display Name';
 
     double calculateTotalAmount() {
       double total = 0.0;
@@ -97,105 +91,91 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
         centerTitle: true,
         title: Text(
           organizationDetails,
-          style: const TextStyle(
-              fontWeight: FontWeight.w400, fontSize: 17, color: Colors.white),
+          style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17, color: Colors.white),
         ),
         backgroundColor: appbarColor,
         elevation: 0,
       ),
-      body: Stack(
+      body: Column(
         children: [
           SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: screenHeight * 0.6),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: screenHeight * 0.09,
-                    // margin: EdgeInsets.all(screenWidth * 0.02),
-                    // padding: EdgeInsets.all(screenWidth * 0.05),
-                    decoration: BoxDecoration(
-                      boxShadow: kElevationToShadow[1],
-                      color: const Color.fromARGB(255, 224, 225, 255),
-                      borderRadius: BorderRadius.circular(5),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: screenHeight * 0.09,
+                  // margin: EdgeInsets.all(screenWidth * 0.02),
+                  // padding: EdgeInsets.all(screenWidth * 0.05),
+                  decoration: BoxDecoration(
+                    boxShadow: kElevationToShadow[1],
+                    color: const Color.fromARGB(255, 224, 225, 255),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '     Number: $membershipNumber   Name: $memberName  \n                     Group: $groupNumber ',
+                      style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
                     ),
-                    child: Center(
-                      child: Text(
-                        '     Number: $membershipNumber   Name: $memberName  \n                     Group: $groupNumber ',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 16),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.all(screenWidth * 0.02),
+                  padding: EdgeInsets.all(screenWidth * 0.04),
+                  decoration: BoxDecoration(
+                    boxShadow: kElevationToShadow[1],
+                    color: const Color.fromARGB(255, 241, 231, 231),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Total Amount",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
                       ),
-                    ),
+                      Text(
+                        getFormattedTotalAmount(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(screenWidth * 0.02),
-                    padding: EdgeInsets.all(screenWidth * 0.04),
-                    decoration: BoxDecoration(
-                      boxShadow: kElevationToShadow[1],
-                      color: const Color.fromARGB(255, 241, 231, 231),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Total Amount",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 19),
-                        ),
-                        Text(
-                          getFormattedTotalAmount(),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 19),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: widget.accountAddedList.length,
-                    itemBuilder: (context, index) {
-                      var item = widget.accountAddedList[index];
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.accountAddedList.length,
+                  itemBuilder: (context, index) {
+                    var item = widget.accountAddedList[index];
 
-                      return Container(
-                        width: double.infinity,
-                        margin: EdgeInsets.all(screenWidth * 0.02),
-                        padding: EdgeInsets.all(screenWidth * 0.02),
-                        decoration: BoxDecoration(
-                            boxShadow: kElevationToShadow[1],
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Column(
-                          children: [
-                            CustomRowWithIconWidget(
-                              interest: item['interest'],
-                              screenWidth: screenWidth,
-                              name: item['sDisplayName'],
-                              amount: item['receipts'].toString(),
-                              screenHeight: screenHeight,
-                              onDelete: () =>
-                                  showDeleteConfirmation(context, index),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                    return Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(screenWidth * 0.02),
+                      padding: EdgeInsets.all(screenWidth * 0.02),
+                      decoration:
+                          BoxDecoration(boxShadow: kElevationToShadow[1], color: Colors.white, borderRadius: BorderRadius.circular(5)),
+                      child: Column(
+                        children: [
+                          CustomRowWithIconWidget(
+                            interest: item['interest'],
+                            screenWidth: screenWidth,
+                            name: item['sDisplayName'],
+                            amount: item['receipts'].toString(),
+                            screenHeight: screenHeight,
+                            onDelete: () => showDeleteConfirmation(context, index),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: CustomBottomButtons(
-              screenWidth: screenWidth,
-              screenHeight: screenHeight,
-            ),
+          Spacer(),
+          CustomBottomButtons(
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),
@@ -222,8 +202,7 @@ class CustomBottomButtons extends StatelessWidget {
       //   vertical: screenHeight * 0.01,
       //   horizontal: screenWidth * 0.04,
       // ),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
@@ -301,14 +280,10 @@ class CustomRowWithIconWidget extends StatelessWidget {
     final formatter = NumberFormat("#,##0");
 
     // Format interest
-    String formattedInterest = interest != null
-        ? formatter.format(double.tryParse(interest!)?.truncate() ?? 0)
-        : '0';
+    String formattedInterest = interest != null ? formatter.format(double.tryParse(interest!)?.truncate() ?? 0) : '0';
 
     // Format amount
-    String formattedAmount = amount != null
-        ? formatter.format(double.tryParse(amount!)?.truncate() ?? 0)
-        : '0';
+    String formattedAmount = amount != null ? formatter.format(double.tryParse(amount!)?.truncate() ?? 0) : '0';
     return Row(
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -335,13 +310,11 @@ class CustomRowWithIconWidget extends StatelessWidget {
                   Text(
                     // double.tryParse(amount)?.truncate().toString() ?? '0',
                     formattedAmount,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w400, fontSize: 17),
+                    style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
                   ),
                 ],
               ),
-              interest != null &&
-                      double.tryParse(interest!)?.truncate().toString() != '0'
+              interest != null && double.tryParse(interest!)?.truncate().toString() != '0'
                   ? Row(
                       children: [
                         const Text(
@@ -357,8 +330,7 @@ class CustomRowWithIconWidget extends StatelessWidget {
                           // double.tryParse(interest!)?.truncate().toString() ??
                           //     '0',
                           formattedInterest,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w400, fontSize: 17),
+                          style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
                         ),
                       ],
                     )

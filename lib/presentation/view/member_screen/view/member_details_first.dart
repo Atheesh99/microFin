@@ -8,6 +8,7 @@ import 'package:microfin/presentation/view/member_screen/model/get_membership_de
 import 'package:microfin/presentation/view/member_screen/model/member_accountdetails_model.dart';
 import 'package:microfin/presentation/view/member_screen/model/other_account_model.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_details_final.dart';
+import 'package:microfin/presentation/view/member_screen/view/member_number_screen.dart';
 import 'package:microfin/presentation/widgets/custom_text_textfield_container.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
@@ -89,6 +90,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
         otherAccountDropdownItems = accountHeads.map<Map<String, String>>((account) {
           return {
             'DisplayName': account['DisplayName'],
+            'AccountHeadID': account['AccountHeadID'],
           };
         }).toList();
       });
@@ -146,6 +148,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               'monthsDue': account['MonthsDue'],
               'receipts': account['Receipts'],
               'interest': account['Interest'],
+              'MemAccDetailID': account['MemAccDetailID'],
             };
           }).toList();
 
@@ -194,8 +197,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
       monthsDueController.text = accountDetails['monthsDue'];
       emitController.text = accountDetails['eMI'];
       amountPaidController.text = accountDetails['receipts'];
-      interestController.text =
-          double.tryParse(accountDetails['interest'])!.truncate().toString();
+      interestController.text = double.tryParse(accountDetails['interest'])!.truncate().toString();
       calculateTotal();
     });
   }
@@ -226,8 +228,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     // Format the closing balance with commas
     String formattedBalance = "0";
 
-    formattedBalance =
-        NumberFormat('#,###').format(int.tryParse(closingBalance));
+    formattedBalance = NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
 
     return DefaultTabController(
       length: 2,
@@ -244,6 +245,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
           titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
           backgroundColor: appbarColor,
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
           leading: PopupMenuButton<String>(
             onSelected: (value) {
               // Handle the selected value
@@ -251,7 +253,6 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             },
             icon: const Icon(
               Icons.menu,
-              color: Colors.white,
             ),
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -265,6 +266,19 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               // Add more menu items if needed
             ],
           ),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MemberNumber(
+                        loginResponse: widget.loginResponse,
+                      ),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.home))
+          ],
         ),
         body: Column(
           children: [
@@ -640,53 +654,98 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                 ],
               ),
             ),
+            Text("*Click on ADD button once Account details are selected."),
 
             CustomBottomButtons(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
               addbutton: () {
-                if (isOtherAccount) {
-                  if (selectedAccountDetails != null && otherAccountamountController.text.isNotEmpty) {
-                    setState(() {
-                      accountAddedList.add({
-                        'sDisplayName': selectedAccountDetails!['DisplayName'],
-                        'receipts': double.tryParse(
-                                otherAccountamountController.text) ??
-                            0.0,
-                      });
+                if (selectedAccountDetails != null) {
+                  if (isOtherAccount) {
+                    if (selectedAccountDetails != null && otherAccountamountController.text.isNotEmpty) {
+                      if (accountAddedList.any((element) => element['MemAccDetailID'] == selectedAccountDetails!['AccountHeadID'])) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            duration: Duration(seconds: 2),
+                            content: Text('Account already added'),
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          accountAddedList.add({
+                            'sDisplayName': selectedAccountDetails!['DisplayName'],
+                            'MemAccDetailID': selectedAccountDetails!['AccountHeadID'],
+                            'receipts': double.tryParse(otherAccountamountController.text) ?? 0.0,
+                          });
 
-                      // Clear the form after adding
-                      selectedDropValue = null;
-                      selectedAccountDetails = null;
-                      otherAccountamountController.clear();
-                    });
+                          // Clear the form after adding
+                          selectedDropValue = null;
+                          selectedAccountDetails = null;
+                          otherAccountamountController.clear();
+                        });
+                      }
+                    }
+                  } else {
+                    if (selectedAccountDetails!['MemAccDetailID'] != null) {
+                      if (accountAddedList.any((element) => element['MemAccDetailID'] == selectedAccountDetails!['MemAccDetailID'])) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            duration: Duration(seconds: 2),
+                            content: Text('Account already added'),
+                          ),
+                        );
+                      } else {
+                        accountAddedList.add(selectedAccountDetails!);
+                        amountPaidController.clear();
+                        emitController.clear();
+                        interestController.clear();
+                        monthsDueController.clear();
+                        selectedValue = null;
+                        closingBalance = "0";
+                        setState(() {
+                          formattedTotal = '0';
+                        });
+                        print("Add to account list");
+                        log(accountAddedList.toString());
+                      }
+                    }
+                    // accountAddedList.add(selectedAccountDetails!);
                   }
                 } else {
-                  accountAddedList.add(selectedAccountDetails!);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      duration: Duration(seconds: 2),
+                      content: Text('No items are selected'),
+                    ),
+                  );
                 }
-
-                amountPaidController.clear();
-                emitController.clear();
-                interestController.clear();
-                monthsDueController.clear();
-                selectedValue = null;
-                closingBalance = "0";
-                setState(() {
-                  formattedTotal = '0';
-                });
-                print("Add to account list");
-                log(accountAddedList.toString());
               },
               nextButton: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MemberDetailsFinalScreen(
-                      accountAddedList: accountAddedList,
-                      loginResponse: widget.loginResponse,
-                      memberDetails: widget.memberDetails,
-                    ),
-                  ),
-                );
+                accountAddedList.isNotEmpty
+                    ? Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MemberDetailsFinalScreen(
+                            accountAddedList: accountAddedList,
+                            loginResponse: widget.loginResponse,
+                            memberDetails: widget.memberDetails,
+                          ),
+                        ),
+                      )
+                    : ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          duration: Duration(seconds: 2),
+                          content: Text('No items are added'),
+                        ),
+                      );
+                // Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (context) => MemberDetailsFinalScreen(
+                //       accountAddedList: accountAddedList,
+                //       loginResponse: widget.loginResponse,
+                //       memberDetails: widget.memberDetails,
+                //     ),
+                //   ),
+                // );
               },
             )
           ],
