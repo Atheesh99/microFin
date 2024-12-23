@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:microfin/core/constants/colour.dart';
+import 'package:microfin/presentation/view/member_screen/model/get_membership_details_model.dart';
 import 'package:microfin/presentation/widgets/custom_popup.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
 class MemberDetailsFinalScreen extends StatefulWidget {
-  const MemberDetailsFinalScreen({super.key, required this.accountAddedList});
+  const MemberDetailsFinalScreen(
+      {super.key,
+      required this.accountAddedList,
+      required this.memberDetails,
+      required this.loginResponse});
 
   final List<Map<String, dynamic>> accountAddedList;
+  final MemberShipDetailsModel memberDetails;
+  final Map<String, dynamic> loginResponse;
 
   @override
   State<MemberDetailsFinalScreen> createState() =>
@@ -16,6 +24,14 @@ class MemberDetailsFinalScreen extends StatefulWidget {
 class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
   @override
   Widget build(BuildContext context) {
+    final result = widget.loginResponse['result'];
+    // final userName = result != null ? result['UserName'] : 'Unknown User';
+    final memberName = widget.memberDetails.memberName ?? 'Unknown Member';
+    final groupNumber = widget.memberDetails.groupNumber ?? "";
+    final membershipNumber = widget.memberDetails.membershipNumber ?? "";
+    final organizationDetails =
+        result != null ? result['DisplayName'] : 'No Display Name';
+
     double calculateTotalAmount() {
       double total = 0.0;
 
@@ -30,6 +46,15 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
       total += 0.0; // Member fee
 
       return total;
+    }
+
+    // Total amount formatte
+    String getFormattedTotalAmount() {
+      // Create a formatter instance
+      final formatter = NumberFormat("#,##0");
+
+      // Calculate total and format it
+      return "₹ ${formatter.format(calculateTotalAmount())}";
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
@@ -70,121 +95,107 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
         automaticallyImplyLeading: false,
         // toolbarHeight: mediaQuery.size.height * 7,
         centerTitle: true,
-        title: const Text("Name of the Organization"),
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        title: Text(
+          organizationDetails,
+          style: const TextStyle(
+              fontWeight: FontWeight.w400, fontSize: 17, color: Colors.white),
+        ),
         backgroundColor: appbarColor,
         elevation: 0,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Container(
-              width: double.infinity,
-              height: screenHeight * 0.09,
-              // margin: EdgeInsets.all(screenWidth * 0.02),
-              // padding: EdgeInsets.all(screenWidth * 0.05),
-              decoration: BoxDecoration(
-                boxShadow: kElevationToShadow[1],
-                color: const Color.fromARGB(255, 224, 225, 255),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Center(
-                child: Text(
-                  "Member details",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-                ),
-              )),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(screenWidth * 0.02),
-            padding: EdgeInsets.all(screenWidth * 0.05),
-            decoration: BoxDecoration(
-              boxShadow: kElevationToShadow[1],
-              color: const Color.fromARGB(255, 241, 231, 231),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Total Amount",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-                ),
-                Text(
-                  calculateTotalAmount().toStringAsFixed(2),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-                ),
-              ],
-            ),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: widget.accountAddedList.length,
-            itemBuilder: (context, index) {
-              var item = widget.accountAddedList[index];
+          SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: screenHeight * 0.6),
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: screenHeight * 0.09,
+                    // margin: EdgeInsets.all(screenWidth * 0.02),
+                    // padding: EdgeInsets.all(screenWidth * 0.05),
+                    decoration: BoxDecoration(
+                      boxShadow: kElevationToShadow[1],
+                      color: const Color.fromARGB(255, 224, 225, 255),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '     Number: $membershipNumber   Name: $memberName  \n                     Group: $groupNumber ',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w400, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(screenWidth * 0.02),
+                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    decoration: BoxDecoration(
+                      boxShadow: kElevationToShadow[1],
+                      color: const Color.fromARGB(255, 241, 231, 231),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Total Amount",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 19),
+                        ),
+                        Text(
+                          getFormattedTotalAmount(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 19),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: widget.accountAddedList.length,
+                    itemBuilder: (context, index) {
+                      var item = widget.accountAddedList[index];
 
-              return Container(
-                width: double.infinity,
-                margin: EdgeInsets.all(screenWidth * 0.02),
-                padding: EdgeInsets.all(screenWidth * 0.03),
-                decoration: BoxDecoration(
-                    boxShadow: kElevationToShadow[1],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5)),
-                child: Column(
-                  children: [
-                    CustomRowWithIconWidget(
-                      screenWidth: screenWidth,
-                      isIcon: true,
-                      name: item['sDisplayName'],
-                      amount: item['receipts'].toString(),
-                      screenHeight: screenHeight,
-                      onDelete: () => showDeleteConfirmation(context, index),
-                    ),
-                    CustomRowWithIconWidget(
-                      screenWidth: screenWidth,
-                      isIcon: false,
-                      name: "Interest",
-                      amount: item['interest'].toString(),
-                      screenHeight: screenHeight,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(screenWidth * 0.02),
-            padding: EdgeInsets.all(screenWidth * 0.03),
-            decoration: BoxDecoration(
-              boxShadow: kElevationToShadow[1],
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Column(
-              children: [
-                CustomRowWithIconWidget(
-                  screenWidth: screenWidth,
-                  isIcon: true,
-                  name: "Penalty",
-                  amount: "0.00",
-                  screenHeight: screenHeight,
-                ),
-                CustomRowWithIconWidget(
-                  screenWidth: screenWidth,
-                  isIcon: true,
-                  name: "Member fee",
-                  amount: "0.00",
-                  screenHeight: screenHeight,
-                ),
-              ],
+                      return Container(
+                        width: double.infinity,
+                        margin: EdgeInsets.all(screenWidth * 0.02),
+                        padding: EdgeInsets.all(screenWidth * 0.02),
+                        decoration: BoxDecoration(
+                            boxShadow: kElevationToShadow[1],
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Column(
+                          children: [
+                            CustomRowWithIconWidget(
+                              interest: item['interest'],
+                              screenWidth: screenWidth,
+                              name: item['sDisplayName'],
+                              amount: item['receipts'].toString(),
+                              screenHeight: screenHeight,
+                              onDelete: () =>
+                                  showDeleteConfirmation(context, index),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-          const Spacer(),
-          CustomBottomButtons(
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: CustomBottomButtons(
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+            ),
           ),
         ],
       ),
@@ -271,50 +282,89 @@ class CustomRowWithIconWidget extends StatelessWidget {
   const CustomRowWithIconWidget({
     super.key,
     required this.screenWidth,
-    required this.isIcon,
     required this.name,
     required this.amount,
     required this.screenHeight,
     this.onDelete,
+    required this.interest,
   });
 
   final double screenWidth;
   final double screenHeight;
-  final bool isIcon;
   final String name;
   final String amount;
+  final String? interest;
   final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
+    final formatter = NumberFormat("#,##0");
+
+    // Format interest
+    String formattedInterest = interest != null
+        ? formatter.format(double.tryParse(interest!)?.truncate() ?? 0)
+        : '0';
+
+    // Format amount
+    String formattedAmount = amount != null
+        ? formatter.format(double.tryParse(amount!)?.truncate() ?? 0)
+        : '0';
     return Row(
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        isIcon
-            ? IconButton(
-                onPressed: onDelete,
-                icon: const Icon(
-                  Icons.close_rounded,
-                  size: 19,
-                ),
-              )
-            : SizedBox(
-                width: screenWidth * 0.11,
-              ),
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
+        IconButton(
+          onPressed: onDelete,
+          icon: const Icon(
+            Icons.delete,
+            size: 19,
           ),
         ),
-        const Spacer(),
-        Text(
-          amount,
-          style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
-        ),
-        SizedBox(
-          width: screenWidth * 0.02,
+        Expanded(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    // double.tryParse(amount)?.truncate().toString() ?? '0',
+                    formattedAmount,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w400, fontSize: 17),
+                  ),
+                ],
+              ),
+              interest != null &&
+                      double.tryParse(interest!)?.truncate().toString() != '0'
+                  ? Row(
+                      children: [
+                        const Text(
+                          "Interest",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          // interest!,
+                          // double.tryParse(interest!)?.truncate().toString() ??
+                          //     '0',
+                          formattedInterest,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w400, fontSize: 17),
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+            ],
+          ),
         )
       ],
     );

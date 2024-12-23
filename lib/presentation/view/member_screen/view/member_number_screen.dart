@@ -95,7 +95,7 @@ class _MemberNumberState extends State<MemberNumber> {
           const Spacer(),
           CustomBottomButtons(
             nextButton: () {
-              Navigator.of(context).push(
+              Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => MemberDetailsScreen(
                       memberDetails: membershipFechedDetails!,
@@ -230,7 +230,7 @@ class _CustomBottomButtonsState extends State<CustomBottomButtons> {
 }
 
 class CustomMiddleMemberDetails extends StatelessWidget {
-  CustomMiddleMemberDetails(
+  const CustomMiddleMemberDetails(
       {super.key,
       required this.screenWidth,
       required this.screenHeight,
@@ -241,10 +241,10 @@ class CustomMiddleMemberDetails extends StatelessWidget {
 
   final double screenWidth;
   final double screenHeight;
-  String? memberName;
-  String? fatherName;
-  String? groupnumber;
-  String? dateofJoin;
+  final String? memberName;
+  final String? fatherName;
+  final String? groupnumber;
+  final String? dateofJoin;
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +254,9 @@ class CustomMiddleMemberDetails extends StatelessWidget {
       margin: EdgeInsets.all(screenWidth * 0.02),
       padding: EdgeInsets.all(screenWidth * 0.03),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(5)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -296,7 +298,7 @@ class CustomMiddleMemberDetails extends StatelessWidget {
 }
 
 class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
-  CustomheaderWidgetMemberShipNumber({
+  const CustomheaderWidgetMemberShipNumber({
     super.key,
     required this.screenWidth,
     required this.screenHeight,

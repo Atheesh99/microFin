@@ -174,6 +174,10 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     // Parse the values from the controllers
     double amountPaid = double.tryParse(amountPaidController.text) ?? 0.0;
     double interest = double.tryParse(interestController.text) ?? 0.0;
+    setState(() {
+      selectedAccountDetails!['interest'] = interest.toString();
+      selectedAccountDetails!['Receipts'] = amountPaid.toString();
+    });
 
     double totalAmount = amountPaid + interest;
     // Calculate total
@@ -195,7 +199,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
       monthsDueController.text = accountDetails['monthsDue'];
       emitController.text = accountDetails['eMI'];
       amountPaidController.text = accountDetails['receipts'];
-      interestController.text = accountDetails['interest'];
+      interestController.text =
+          double.tryParse(accountDetails['interest'])!.truncate().toString();
       calculateTotal();
     });
   }
@@ -224,8 +229,10 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     final membershipNumber = widget.memberDetails.membershipNumber ?? "";
 
     // Format the closing balance with commas
-    String formattedBalance =
-        NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
+    String formattedBalance = "0";
+
+    formattedBalance =
+        NumberFormat('#,###').format(int.tryParse(closingBalance));
 
     return DefaultTabController(
       length: 2,
@@ -686,8 +693,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                     ),
                                   ),
                                 ),
-                                Spacer(),
-                                Spacer(),
+                                const Spacer(),
                               ],
                             )
                           ],
@@ -709,7 +715,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                     setState(() {
                       accountAddedList.add({
                         'sDisplayName': selectedAccountDetails!['DisplayName'],
-                        'eMI': double.tryParse(
+                        'receipts': double.tryParse(
                                 otherAccountamountController.text) ??
                             0.0,
                       });
@@ -728,6 +734,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                 emitController.clear();
                 interestController.clear();
                 monthsDueController.clear();
+                selectedValue = null;
+                closingBalance = "0";
                 setState(() {
                   formattedTotal = '0';
                 });
@@ -739,6 +747,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                   MaterialPageRoute(
                     builder: (context) => MemberDetailsFinalScreen(
                       accountAddedList: accountAddedList,
+                      loginResponse: widget.loginResponse,
+                      memberDetails: widget.memberDetails,
                     ),
                   ),
                 );
