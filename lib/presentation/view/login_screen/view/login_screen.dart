@@ -1,11 +1,12 @@
 import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:microfin/core/constants/colour.dart';
 import 'package:microfin/data/repositories/api.dart';
-import 'package:microfin/data/repositories/sigin_api.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_number_screen.dart';
-import 'package:http/http.dart' as http;
 import 'package:microfin/presentation/widgets/custom_text_textform_login.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
@@ -26,12 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
 //////Login ////
 
-// Function to convert a string to SHA-256 hash
-  // String convertToSha256(String input) {
-  //   var bytes = utf8.encode(input); // Convert string to bytes
-  //   var digest = sha256.convert(bytes); // Get the SHA-256 hash
-  //   return digest.toString();
-  // }
   String convertToSha256(String input) {
     var newvalue = "$input${BaseAPI.hashcode}";
     if (input.isEmpty) {
@@ -45,10 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Digest sha256Result = sha256.convert(bytes);
 
     // Convert the hash bytes to a hexadecimal string
-    return sha256Result.bytes
-        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-        .join()
-        .toUpperCase();
+    return sha256Result.bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join().toUpperCase();
   }
 
   Future<void> _login() async {
@@ -70,8 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
       print("SHA-256 Hashed Password: $hashedPassword");
 
       // API endpoint URL
-      const String url =
-          'http://154.38.175.150:8090/api/users/validateMobileUser';
+      const String url = 'http://154.38.175.150:8090/api/users/validateMobileUser';
 
       // Prepare the request body
       final Map<String, String> requestBody = {
@@ -105,11 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else {
           // Show an error message if the login failed
-          print(
-              "Login failed: ${response.statusCode} - ${response.reasonPhrase}");
+          print("Login failed: ${response.statusCode} - ${response.reasonPhrase}");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Center(child: Text('Enter the Password Correctly'))),
+            const SnackBar(content: Center(child: Text('Invalid User Name or Password'))),
           );
         }
       } catch (e) {
@@ -134,9 +123,39 @@ class _LoginScreenState extends State<LoginScreen> {
       // backgroundColor: const Color.fromARGB(255, 244, 244, 244),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
+        actions: [
+          TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Do you want to close the APP',
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {});
+                          SystemNavigator.pop();
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Text(
+                "Exit",
+                style: TextStyle(color: Colors.white),
+              ))
+        ],
         elevation: 0,
       ),
       body: Container(
@@ -174,85 +193,38 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     height: 300,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
                     child: Form(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       key: _formKey,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomTextWithTextFormField(
                             labeltext: "Login",
-                            // inputext: "example@gmamil.com",
+                            maxLength: 10,
+                            obscure: false,
                             controller: _usernameController,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return "This field cannot be empty";
-                            //   }
-                            //   if (value.length < 3) {
-                            //     return "Must be at least 3 characters long";
-                            //   }
-                            //   if (value.length > 8) {
-                            //     return "Cannot exceed 8 characters";
-                            //   }
-
-                            //   // Check for alphabetic only
-                            //   if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                            //     return null; // valid alphabetic input
-                            //   }
-
-                            //   // Check for numeric only
-                            //   if (RegExp(r'^[0-9]+$').hasMatch(value)) {
-                            //     return null; // valid numeric input
-                            //   }
-
-                            //   // Check for alphanumeric (letters and numbers)
-                            //   if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-                            //     return null; // valid alphanumeric input
-                            //   }
-
-                            //   return "Input must be alphabetic, numeric, or alphanumeric.";
-                            // },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Enter User Name";
+                              }
+                            },
                           ),
                           SizedBox(
                             height: mediaQuery.size.height * 0.03,
                           ),
                           CustomTextWithTextFormField(
+                            maxLength: 10,
+                            obscure: true,
                             labeltext: "Password",
-                            // inputext: "********",
                             controller: _passwordController,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return "Password cannot be empty";
-                            //   }
-                            //   if (value.length < 4) {
-                            //     return "Password must be at least 4 characters long";
-                            //   }
-                            //   if (value.length > 7) {
-                            //     return "Password cannot exceed 7 characters";
-                            //   }
-                            //   if (value.contains(' ')) {
-                            //     return "Password cannot contain spaces";
-                            //   }
-
-                            //   // Check for alphabetic only (letters)
-                            //   if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                            //     return null; // valid alphabetic input
-                            //   }
-
-                            //   // Check for numeric only (numbers)
-                            //   if (RegExp(r'^[0-9]+$').hasMatch(value)) {
-                            //     return null; // valid numeric input
-                            //   }
-
-                            //   // Check for alphanumeric (letters and numbers)
-                            //   if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-                            //     return null; // valid alphanumeric input
-                            //   }
-
-                            //   return "Password must be alphabetic, numeric, or alphanumeric.";
-                            // },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Enter Password";
+                              }
+                              return null;
+                            },
                           ),
                           SizedBox(
                             height: mediaQuery.size.height * 0.04,
@@ -262,8 +234,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               : CustomTextButton(
                                   buttonText: "Login",
                                   onPressed: () {
-                                    _login();
                                     FocusScope.of(context).unfocus();
+                                    if (_formKey.currentState!.validate()) {
+                                      _login();
+                                    }
                                   },
                                 )
                         ],

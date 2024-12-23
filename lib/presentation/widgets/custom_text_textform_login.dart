@@ -5,12 +5,14 @@ class CustomTextWithTextFormField extends StatelessWidget {
     super.key,
     this.icon,
     required this.labeltext,
-    // required this.inputext,
     required this.controller,
     this.validator,
+    required this.maxLength,
+    required this.obscure,
   });
   final String labeltext;
-  // final String inputext;
+  final int maxLength;
+  final bool obscure;
   final IconData? icon;
   final TextEditingController controller;
   final FormFieldValidator<String>? validator;
@@ -44,8 +46,11 @@ class CustomTextWithTextFormField extends StatelessWidget {
               keyboardType: TextInputType.number,
               validator: validator,
               controller: controller,
+              maxLength: maxLength,
+              obscureText: obscure,
               textAlign: TextAlign.start,
               decoration: InputDecoration(
+                counterText: "",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                 ),
