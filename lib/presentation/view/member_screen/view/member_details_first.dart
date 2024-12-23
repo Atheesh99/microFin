@@ -32,8 +32,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   final TextEditingController emitController = TextEditingController();
   final TextEditingController amountPaidController = TextEditingController();
   final TextEditingController interestController = TextEditingController();
-  final TextEditingController otherAccountamountController =
-      TextEditingController();
+  final TextEditingController otherAccountamountController = TextEditingController();
   String formattedTotal = "0";
 
   List<MemberAccountDetailsModel> accountDetailsList = [];
@@ -66,8 +65,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
 
   // Other Account screen api call
   Future<void> fetchOtherAccountData() async {
-    const String apiUrl =
-        "http://154.38.175.150:8090/api/accountHead/getGLAccounts";
+    const String apiUrl = "http://154.38.175.150:8090/api/accountHead/getGLAccounts";
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -80,19 +78,15 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
       log("API response body  -1: ${response.body.toString()}");
 
       var result = responseJson['result'];
-      print(
-          "response of Accountnumber - ${result['AccountHeads'][0]['DisplayName']}");
+      print("response of Accountnumber - ${result['AccountHeads'][0]['DisplayName']}");
 
-      otherAccountList = (result['AccountHeads'] as List)
-          .map((e) => OtherAccountModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      otherAccountList = (result['AccountHeads'] as List).map((e) => OtherAccountModel.fromJson(e as Map<String, dynamic>)).toList();
 
       // print("count -- " + otherAccountList.length.toString());
 
       List<dynamic> accountHeads = result['AccountHeads'];
       setState(() {
-        otherAccountDropdownItems =
-            accountHeads.map<Map<String, String>>((account) {
+        otherAccountDropdownItems = accountHeads.map<Map<String, String>>((account) {
           return {
             'DisplayName': account['DisplayName'],
           };
@@ -122,9 +116,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
       String membershipID = "70107";
       String receiptDate = "2024-11-08";
 
-      final uri = Uri.parse(
-              'http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts')
-          .replace(queryParameters: {
+      final uri = Uri.parse('http://154.38.175.150:8090/api/mobile/getMemberAccountsForReceipts').replace(queryParameters: {
         'MembershipID': membershipID,
         'ReceiptDate': receiptDate,
       });
@@ -140,15 +132,12 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
 
         Map<String, dynamic> resultJson = jsonDecode(result);
 
-        accountDetailsList = (resultJson['AccountDetails'] as List)
-            .map((e) =>
-                MemberAccountDetailsModel.fromJson(e as Map<String, dynamic>))
-            .toList();
+        accountDetailsList =
+            (resultJson['AccountDetails'] as List).map((e) => MemberAccountDetailsModel.fromJson(e as Map<String, dynamic>)).toList();
 
         List<dynamic> accountDetails = resultJson['AccountDetails'];
         setState(() {
-          accountDropdownItems =
-              accountDetails.map<Map<String, String>>((account) {
+          accountDropdownItems = accountDetails.map<Map<String, String>>((account) {
             return {
               'accountNumber': account['AccountNumber'],
               'sDisplayName': account['SDisplayName'],
@@ -172,8 +161,14 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
 
   void calculateTotal() {
     // Parse the values from the controllers
+
+    print(interestController.text);
     double amountPaid = double.tryParse(amountPaidController.text) ?? 0.0;
     double interest = double.tryParse(interestController.text) ?? 0.0;
+
+    setState(() {
+      selectedAccountDetails!['interest'] = interest.toString(); // Update the value
+    });
 
     double totalAmount = amountPaid + interest;
     // Calculate total
@@ -224,8 +219,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     final membershipNumber = widget.memberDetails.membershipNumber ?? "";
 
     // Format the closing balance with commas
-    String formattedBalance =
-        NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
+    String formattedBalance = NumberFormat('#,###').format(int.tryParse(closingBalance) ?? 0);
 
     return DefaultTabController(
       length: 2,
@@ -239,8 +233,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             userName,
             style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
           ),
-          titleTextStyle: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+          titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
           backgroundColor: appbarColor,
           elevation: 0,
           leading: PopupMenuButton<String>(
@@ -280,8 +273,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               child: Center(
                 child: Text(
                   '     Number: $membershipNumber   Name: $memberName  \n                    Group: $groupNumber ',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w400, fontSize: 16),
+                  style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
                 ),
               ),
             ),
@@ -316,24 +308,20 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                         width: double.infinity,
                         margin: EdgeInsets.all(screenWidth * 0.02),
                         padding: EdgeInsets.all(screenWidth * 0.03),
-                        decoration: BoxDecoration(
-                            boxShadow: kElevationToShadow[2],
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
+                        decoration:
+                            BoxDecoration(boxShadow: kElevationToShadow[2], color: Colors.white, borderRadius: BorderRadius.circular(5)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               "Select Account",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             SizedBox(height: screenHeight * 0.01),
                             // dropdownButton
                             Container(
                               height: 40,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 boxShadow: const [
@@ -343,29 +331,20 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                     blurRadius: 2.0,
                                   ),
                                 ],
-                                border: Border.all(
-                                    color: const Color.fromARGB(
-                                        255, 149, 147, 147),
-                                    width: 1.0), // Rectangular border
+                                border: Border.all(color: const Color.fromARGB(255, 149, 147, 147), width: 1.0), // Rectangular border
                                 borderRadius: BorderRadius.circular(2.0),
                               ),
                               child: Center(
                                 child: DropdownButtonFormField<String>(
                                   key: _dropdownKey,
                                   value: selectedValue,
-                                  icon: const Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: Colors
-                                          .black), // Right-side down arrow
-                                  decoration: const InputDecoration.collapsed(
-                                      hintText: ''), // Remove underline
+                                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black), // Right-side down arrow
+                                  decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
                                   items: accountDropdownItems.map((item) {
                                     // Combine accountNumber and sDisplayName for display
-                                    String displayText =
-                                        '${item['accountNumber']} - ${item['sDisplayName']}';
+                                    String displayText = '${item['accountNumber']} - ${item['sDisplayName']}';
                                     return DropdownMenuItem<String>(
-                                      value: item[
-                                          'accountNumber'], // Use accountNumber as the value
+                                      value: item['accountNumber'], // Use accountNumber as the value
                                       child: Text(displayText),
                                     );
                                   }).toList(),
@@ -373,27 +352,20 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                     setState(() {
                                       selectedValue = newValue;
                                       // Find the selected account and update closingBalance
-                                      final selectedAccount =
-                                          accountDropdownItems.firstWhere(
-                                        (item) =>
-                                            item['accountNumber'] == newValue,
+                                      final selectedAccount = accountDropdownItems.firstWhere(
+                                        (item) => item['accountNumber'] == newValue,
                                       );
-                                      closingBalance =
-                                          selectedAccount['closingBalance']!;
+                                      closingBalance = selectedAccount['closingBalance']!;
                                       emi = selectedAccount['eMI'] ?? '0.00';
-                                      monthsDue =
-                                          selectedAccount['monthsDue'] ?? '0';
-                                      receipts =
-                                          selectedAccount['receipts'] ?? '0.00';
-                                      interest =
-                                          selectedAccount['interest'] ?? '0.00';
+                                      monthsDue = selectedAccount['monthsDue'] ?? '0';
+                                      receipts = selectedAccount['receipts'] ?? '0.00';
+                                      interest = selectedAccount['interest'] ?? '0.00';
                                       // Send the closing balance to the parent screen
 
                                       isOtherAccount = false;
 
                                       setState(() {
-                                        selectedAccountDetails =
-                                            selectedAccount;
+                                        selectedAccountDetails = selectedAccount;
                                       });
 
                                       updateClosingBalance(closingBalance);
@@ -413,9 +385,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                 const Spacer(),
                                 Text(
                                   '₹$formattedBalance',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                                 ),
                               ],
                             ),
@@ -425,23 +395,17 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                       Container(
                         width: double.infinity,
                         height: screenHeight * 0.29,
-                        margin: EdgeInsets.only(
-                            left: screenWidth * 0.03,
-                            right: screenWidth * 0.03,
-                            bottom: screenWidth * 0.01),
+                        margin: EdgeInsets.only(left: screenWidth * 0.03, right: screenWidth * 0.03, bottom: screenWidth * 0.01),
                         // margin: EdgeInsets.all(screenWidth * 0.02),
                         padding: EdgeInsets.all(screenWidth * 0.01),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: kElevationToShadow[1],
-                            borderRadius: BorderRadius.circular(5)),
+                        decoration:
+                            BoxDecoration(color: Colors.white, boxShadow: kElevationToShadow[1], borderRadius: BorderRadius.circular(5)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               "Installment details",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             SizedBox(
                               height: screenHeight * 0.01,
@@ -490,9 +454,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                       Container(
                         width: double.infinity,
                         height: screenHeight * 0.07,
-                        margin: EdgeInsets.only(
-                            left: screenWidth * 0.02,
-                            right: screenWidth * 0.02),
+                        margin: EdgeInsets.only(left: screenWidth * 0.02, right: screenWidth * 0.02),
                         // padding: EdgeInsets.all(screenWidth * 0.04),
                         decoration: BoxDecoration(
                             boxShadow: kElevationToShadow[1],
@@ -503,14 +465,12 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                             const SizedBox(width: 12),
                             const Text(
                               "Total Amount",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                             ),
                             Spacer(),
                             Text(
                               '₹$formattedTotal',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                             ),
                             const SizedBox(width: 12),
                           ],
@@ -526,24 +486,20 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                         width: double.infinity,
                         margin: EdgeInsets.all(screenWidth * 0.02),
                         padding: EdgeInsets.all(screenWidth * 0.03),
-                        decoration: BoxDecoration(
-                            boxShadow: kElevationToShadow[1],
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5)),
+                        decoration:
+                            BoxDecoration(boxShadow: kElevationToShadow[1], color: Colors.white, borderRadius: BorderRadius.circular(5)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               "Select Other Accounts",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             SizedBox(height: screenHeight * 0.01),
                             // other account dropdown
                             Container(
                               height: 40,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 boxShadow: const [
@@ -553,29 +509,20 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                     blurRadius: 2.0,
                                   ),
                                 ],
-                                border: Border.all(
-                                    color: const Color.fromARGB(
-                                        255, 149, 147, 147),
-                                    width: 1.0), // Rectangular border
+                                border: Border.all(color: const Color.fromARGB(255, 149, 147, 147), width: 1.0), // Rectangular border
                                 borderRadius: BorderRadius.circular(2.0),
                               ),
                               child: Center(
                                 child: DropdownButtonFormField<String>(
                                   key: _dropdownKey2,
                                   value: selectedDropValue,
-                                  icon: const Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: Colors
-                                          .black), // Right-side down arrow
-                                  decoration: const InputDecoration.collapsed(
-                                      hintText: ''), // Remove underline
+                                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black), // Right-side down arrow
+                                  decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
                                   items: otherAccountDropdownItems.map((item) {
                                     // Combine accountNumber and sDisplayName for display
-                                    String displayText =
-                                        '${item['DisplayName']}';
+                                    String displayText = '${item['DisplayName']}';
                                     return DropdownMenuItem<String>(
-                                      value: item[
-                                          'DisplayName'], // Use accountNumber as the value
+                                      value: item['DisplayName'], // Use accountNumber as the value
                                       child: Text(displayText),
                                     );
                                   }).toList(),
@@ -583,10 +530,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                     setState(() {
                                       selectedDropValue = newValue;
                                       // Find the selected account and update closingBalance
-                                      final selectedAccount =
-                                          otherAccountDropdownItems.firstWhere(
-                                        (item) =>
-                                            item['DisplayName'] == newValue,
+                                      final selectedAccount = otherAccountDropdownItems.firstWhere(
+                                        (item) => item['DisplayName'] == newValue,
                                       );
 
                                       // print(selectedAccount.displayName);
@@ -594,8 +539,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                       isOtherAccount = true;
 
                                       setState(() {
-                                        selectedAccountDetails =
-                                            selectedAccount;
+                                        selectedAccountDetails = selectedAccount;
                                       });
 
                                       // updateClosingBalance(closingBalance);
@@ -610,9 +554,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                               children: [
                                 const Text(
                                   "Amount",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400),
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   width: screenWidth * 0.02,
@@ -637,46 +579,39 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                       keyboardType: TextInputType.number,
                                       maxLength: 7,
                                       controller: otherAccountamountController,
-                                      style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w400),
+                                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
                                       decoration: InputDecoration(
                                         counterText: "",
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
+                                          borderRadius: BorderRadius.circular(5),
                                           borderSide: const BorderSide(
                                             color: Colors.transparent,
                                             width: 1.0,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
+                                          borderRadius: BorderRadius.circular(5),
                                           borderSide: const BorderSide(
                                             color: Colors.transparent,
                                             width: 1.0,
                                           ),
                                         ),
                                         errorBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
+                                          borderRadius: BorderRadius.circular(5),
                                           borderSide: const BorderSide(
                                             color: Colors.transparent,
                                             width: 1.0,
                                           ),
                                         ),
                                         disabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
+                                          borderRadius: BorderRadius.circular(5),
                                           borderSide: const BorderSide(
                                             color: Colors.transparent,
                                             width: 1.0,
                                           ),
                                         ),
                                         focusedErrorBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
+                                          borderRadius: BorderRadius.circular(5),
                                           borderSide: const BorderSide(
                                             color: Colors.transparent,
                                             width: 1.0,
@@ -704,14 +639,11 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               screenHeight: screenHeight,
               addbutton: () {
                 if (isOtherAccount) {
-                  if (selectedAccountDetails != null &&
-                      otherAccountamountController.text.isNotEmpty) {
+                  if (selectedAccountDetails != null && otherAccountamountController.text.isNotEmpty) {
                     setState(() {
                       accountAddedList.add({
                         'sDisplayName': selectedAccountDetails!['DisplayName'],
-                        'eMI': double.tryParse(
-                                otherAccountamountController.text) ??
-                            0.0,
+                        'eMI': double.tryParse(otherAccountamountController.text) ?? 0.0,
                       });
 
                       // Clear the form after adding
@@ -853,12 +785,9 @@ class CustomRowWithIconWidget extends StatelessWidget {
                 margin: EdgeInsets.only(right: screenWidth * 0.04),
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(
-                        width: 1.0, color: Colors.black), // Top border
-                    bottom: BorderSide(
-                        width: 1.0, color: Colors.black), // Top border
-                    left: BorderSide(
-                        width: 1.0, color: Colors.black), // Left border
+                    top: BorderSide(width: 1.0, color: Colors.black), // Top border
+                    bottom: BorderSide(width: 1.0, color: Colors.black), // Top border
+                    left: BorderSide(width: 1.0, color: Colors.black), // Left border
                   ),
                 ),
               )
@@ -915,10 +844,8 @@ class _CustomDropdownState extends State<CustomDropdown> {
             Icons.keyboard_arrow_down_rounded,
             color: Colors.black,
           ), // Right-side down arrow
-          decoration:
-              const InputDecoration.collapsed(hintText: ''), // Remove underline
-          items:
-              <String>['Option 1', 'Option 2', 'Option 3'].map((String value) {
+          decoration: const InputDecoration.collapsed(hintText: ''), // Remove underline
+          items: <String>['Option 1', 'Option 2', 'Option 3'].map((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),
