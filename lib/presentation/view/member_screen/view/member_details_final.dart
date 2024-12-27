@@ -6,14 +6,19 @@ import 'package:microfin/presentation/widgets/custom_popup.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
 class MemberDetailsFinalScreen extends StatefulWidget {
-  const MemberDetailsFinalScreen({super.key, required this.accountAddedList, required this.memberDetails, required this.loginResponse});
+  const MemberDetailsFinalScreen(
+      {super.key,
+      required this.accountAddedList,
+      required this.memberDetails,
+      required this.loginResponse});
 
   final List<Map<String, dynamic>> accountAddedList;
   final MemberShipDetailsModel memberDetails;
   final Map<String, dynamic> loginResponse;
 
   @override
-  State<MemberDetailsFinalScreen> createState() => _MemberDetailsFinalScreenState();
+  State<MemberDetailsFinalScreen> createState() =>
+      _MemberDetailsFinalScreenState();
 }
 
 class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
@@ -24,7 +29,8 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
     final memberName = widget.memberDetails.memberName ?? 'Unknown Member';
     final groupNumber = widget.memberDetails.groupNumber ?? "";
     final membershipNumber = widget.memberDetails.membershipNumber ?? "";
-    final organizationDetails = result != null ? result['DisplayName'] : 'No Display Name';
+    final organizationDetails =
+        result != null ? result['DisplayName'] : 'No Display Name';
 
     double calculateTotalAmount() {
       double total = 0.0;
@@ -91,7 +97,8 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
         centerTitle: true,
         title: Text(
           organizationDetails,
-          style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17, color: Colors.white),
+          style: const TextStyle(
+              fontWeight: FontWeight.w400, fontSize: 17, color: Colors.white),
         ),
         backgroundColor: appbarColor,
         elevation: 0,
@@ -114,7 +121,8 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
                   child: Center(
                     child: Text(
                       '     Number: $membershipNumber   Name: $memberName  \n                     Group: $groupNumber ',
-                      style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w400, fontSize: 16),
                     ),
                   ),
                 ),
@@ -132,11 +140,13 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
                     children: [
                       const Text(
                         "Total Amount",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 19),
                       ),
                       Text(
                         getFormattedTotalAmount(),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 19),
                       ),
                     ],
                   ),
@@ -152,8 +162,10 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
                       width: double.infinity,
                       margin: EdgeInsets.all(screenWidth * 0.02),
                       padding: EdgeInsets.all(screenWidth * 0.02),
-                      decoration:
-                          BoxDecoration(boxShadow: kElevationToShadow[1], color: Colors.white, borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(
+                          boxShadow: kElevationToShadow[1],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5)),
                       child: Column(
                         children: [
                           CustomRowWithIconWidget(
@@ -162,7 +174,8 @@ class _MemberDetailsFinalScreenState extends State<MemberDetailsFinalScreen> {
                             name: item['sDisplayName'],
                             amount: item['receipts'].toString(),
                             screenHeight: screenHeight,
-                            onDelete: () => showDeleteConfirmation(context, index),
+                            onDelete: () =>
+                                showDeleteConfirmation(context, index),
                           ),
                         ],
                       ),
@@ -202,7 +215,8 @@ class CustomBottomButtons extends StatelessWidget {
       //   vertical: screenHeight * 0.01,
       //   horizontal: screenWidth * 0.04,
       // ),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
@@ -218,6 +232,7 @@ class CustomBottomButtons extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(width: 0.7),
           Expanded(
             child: SizedBox(
               height: screenHeight * 0.05,
@@ -280,10 +295,14 @@ class CustomRowWithIconWidget extends StatelessWidget {
     final formatter = NumberFormat("#,##0");
 
     // Format interest
-    String formattedInterest = interest != null ? formatter.format(double.tryParse(interest!)?.truncate() ?? 0) : '0';
+    String formattedInterest = interest != null
+        ? formatter.format(double.tryParse(interest!)?.truncate() ?? 0)
+        : '0';
 
     // Format amount
-    String formattedAmount = amount != null ? formatter.format(double.tryParse(amount!)?.truncate() ?? 0) : '0';
+    String formattedAmount = amount != null
+        ? formatter.format(double.tryParse(amount!)?.truncate() ?? 0)
+        : '0';
     return Row(
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -310,11 +329,13 @@ class CustomRowWithIconWidget extends StatelessWidget {
                   Text(
                     // double.tryParse(amount)?.truncate().toString() ?? '0',
                     formattedAmount,
-                    style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w400, fontSize: 17),
                   ),
                 ],
               ),
-              interest != null && double.tryParse(interest!)?.truncate().toString() != '0'
+              interest != null &&
+                      double.tryParse(interest!)?.truncate().toString() != '0'
                   ? Row(
                       children: [
                         const Text(
@@ -330,7 +351,8 @@ class CustomRowWithIconWidget extends StatelessWidget {
                           // double.tryParse(interest!)?.truncate().toString() ??
                           //     '0',
                           formattedInterest,
-                          style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w400, fontSize: 17),
                         ),
                       ],
                     )

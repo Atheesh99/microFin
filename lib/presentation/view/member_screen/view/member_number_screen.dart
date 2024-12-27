@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:microfin/core/constants/colour.dart';
+import 'package:microfin/presentation/view/login_screen/view/login_screen.dart';
 import 'package:microfin/presentation/view/member_screen/model/get_membership_details_model.dart';
 import 'package:microfin/presentation/view/member_screen/model/membership_fetch_model.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_details_first.dart';
@@ -17,7 +18,8 @@ class MemberNumber extends StatefulWidget {
 }
 
 class _MemberNumberState extends State<MemberNumber> {
-  final TextEditingController _membershipNumberController = TextEditingController();
+  final TextEditingController _membershipNumberController =
+      TextEditingController();
   String? memberName;
   String? fatherName;
   String? groupnumber;
@@ -37,14 +39,16 @@ class _MemberNumberState extends State<MemberNumber> {
     final result = widget.loginResponse['result'];
 
     final userName = result != null ? result['UserName'] : 'Unknown User';
-    final organizationDetails = result != null ? result['DisplayName'] : 'No Display Name';
+    final organizationDetails =
+        result != null ? result['DisplayName'] : 'No Display Name';
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromARGB(255, 242, 242, 242),
       appBar: AppBar(
         // toolbarHeight: mediaQuery.size.height * 0.05,
-        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         elevation: 0, centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
@@ -53,7 +57,15 @@ class _MemberNumberState extends State<MemberNumber> {
           style: TextStyle(fontWeight: FontWeight.w400, fontSize: 17),
         ),
 
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.logout, color: Colors.white))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => LoginScreen(),
+                ));
+              },
+              icon: const Icon(Icons.logout, color: Colors.white))
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -73,7 +85,10 @@ class _MemberNumberState extends State<MemberNumber> {
                   SizedBox(height: 10),
                   Text(
                     "MicroFin",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
                   ),
                 ],
               ),
@@ -129,12 +144,12 @@ class _MemberNumberState extends State<MemberNumber> {
             CustomheaderWidgetMemberShipNumber(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Enter Membership Number';
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value!.isEmpty) {
+              //     return 'Enter Membership Number';
+              //   }
+              //   return null;
+              // },
               membershipNumberController: _membershipNumberController,
               getMembershipDetails: () async {
                 if (_formKey.currentState!.validate()) {
@@ -158,17 +173,13 @@ class _MemberNumberState extends State<MemberNumber> {
             CustomBottomButtons(
               nextButton: () {
                 if (membershipFechedDetails == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      duration: Duration(seconds: 2),
-                      content: Text('Member details not found'),
-                    ),
-                  );
+                  _showErrorDialog("Member details not found.");
                 } else {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) =>
-                          MemberDetailsScreen(memberDetails: membershipFechedDetails!, loginResponse: widget.loginResponse),
+                      builder: (context) => MemberDetailsScreen(
+                          memberDetails: membershipFechedDetails!,
+                          loginResponse: widget.loginResponse),
                     ),
                   );
                 }
@@ -196,6 +207,12 @@ class _MemberNumberState extends State<MemberNumber> {
   Future<MemberShipDetailsModel?> getMembershipDetails() async {
     String membershipNumber = _membershipNumberController.text.trim();
 
+    // Validate membership number
+    if (membershipNumber.isEmpty) {
+      _showErrorDialog("Membership Number is required.");
+      return null; // Stop execution if validation fails
+    }
+
     // Create the request object (model)
     final membershipData = MembershipFetchModel(
       officeID: '3',
@@ -209,7 +226,8 @@ class _MemberNumberState extends State<MemberNumber> {
     try {
       // Make the POST request
       var response = await http.post(
-        Uri.parse('http://154.38.175.150:8090/api/members/getMembershipDetails'),
+        Uri.parse(
+            'http://154.38.175.150:8090/api/members/getMembershipDetails'),
         headers: headers,
         body: json.encode(membershipData.toJson()),
       );
@@ -222,7 +240,8 @@ class _MemberNumberState extends State<MemberNumber> {
         // Extract `result` and parse it into a model
         var result = responseData['result'];
 
-        MemberShipDetailsModel memberResult = MemberShipDetailsModel.fromJson(result);
+        MemberShipDetailsModel memberResult =
+            MemberShipDetailsModel.fromJson(result);
 
         setState(() {
           memberName = memberResult.memberName;
@@ -234,13 +253,43 @@ class _MemberNumberState extends State<MemberNumber> {
       } else {
         // Handle unsuccessful responses
         print('Error: ${response.reasonPhrase}');
+        _showErrorDialog(
+            "Failed to fetch membership details. Please try again.");
         return null;
       }
     } catch (e) {
       // Handle exceptions
       print('Exception: $e');
+      _showErrorDialog("Member details not found Or Incorrect Member Details.");
       return null;
     }
+  }
+
+  // Function to show error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() {
+                memberName = "";
+                fatherName = "";
+                groupnumber = "";
+                groupnumber = "";
+                dateofJoin = "";
+                _membershipNumberController.clear();
+              });
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -270,19 +319,25 @@ class _CustomBottomButtonsState extends State<CustomBottomButtons> {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.all(widget.screenWidth * 0.02),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Row(
         children: [
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(buttonText: "RESET", onPressed: widget.resetButton),
+              child: CustomTextButton(
+                  buttonText: "RESET", onPressed: widget.resetButton),
             ),
+          ),
+          const SizedBox(
+            width: .7,
           ),
           Expanded(
             child: SizedBox(
               height: widget.screenHeight * 0.05,
-              child: CustomTextButton(buttonText: "NEXT", onPressed: widget.nextButton),
+              child: CustomTextButton(
+                  buttonText: "NEXT", onPressed: widget.nextButton),
             ),
           ),
         ],
@@ -366,21 +421,23 @@ class CustomheaderWidgetMemberShipNumber extends StatefulWidget {
     required this.screenHeight,
     required this.getMembershipDetails,
     required this.membershipNumberController,
-    required this.validator,
+    this.validator,
   });
 
   final double screenWidth;
   final double screenHeight;
   final VoidCallback getMembershipDetails;
-  final FormFieldValidator<String> validator;
+  final FormFieldValidator<String>? validator;
 
   final TextEditingController membershipNumberController;
 
   @override
-  State<CustomheaderWidgetMemberShipNumber> createState() => _CustomheaderWidgetMemberShipNumberState();
+  State<CustomheaderWidgetMemberShipNumber> createState() =>
+      _CustomheaderWidgetMemberShipNumberState();
 }
 
-class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetMemberShipNumber> {
+class _CustomheaderWidgetMemberShipNumberState
+    extends State<CustomheaderWidgetMemberShipNumber> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -388,7 +445,8 @@ class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetM
       width: double.infinity,
       margin: EdgeInsets.all(widget.screenWidth * 0.02),
       padding: EdgeInsets.all(widget.screenWidth * 0.03),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -421,7 +479,8 @@ class _CustomheaderWidgetMemberShipNumberState extends State<CustomheaderWidgetM
                     textAlign: TextAlign.end,
                     validator: widget.validator,
                     maxLength: 6,
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+                    style: const TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
                         counterText: '',
                         enabledBorder: OutlineInputBorder(
@@ -502,7 +561,8 @@ class CustomField extends StatelessWidget {
               width: screenHeight * 0.16,
               child: Text(
                 labeltext,
-                style: TextStyle(fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
+                style: TextStyle(
+                    fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
               ),
             ),
             Expanded(

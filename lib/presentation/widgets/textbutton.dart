@@ -31,7 +31,7 @@ class CustomTextButton extends StatelessWidget {
             // backgroundColor: const Color.fromARGB(255, 222, 217, 217),
             backgroundColor: buttonColor ?? appbarColor,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
               side: BorderSide(
                 color: Colors.black,
                 width: 2.0,
