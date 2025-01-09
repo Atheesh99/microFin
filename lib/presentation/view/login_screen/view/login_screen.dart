@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:microfin/core/constants/colour.dart';
 import 'package:microfin/data/repositories/api.dart';
 import 'package:microfin/presentation/view/member_screen/view/member_number_screen.dart';
-import 'package:microfin/presentation/widgets/custom_text_textform_login.dart';
 import 'package:microfin/presentation/widgets/textbutton.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -115,10 +114,13 @@ class _LoginScreenState extends State<LoginScreen> {
           print(
               "Login failed: ${response.statusCode} - ${response.reasonPhrase}");
         }
+      } on SocketException {
+        _showErrorDialog("Please connect to the internet.");
+      } on http.ClientException {
+        _showErrorDialog("Please connect to the internet.");
       } catch (e) {
         // Handle exceptions (e.g., network error)
-        _showErrorDialog("Login failed: $e");
-        print("An error occurred: $e");
+        _showErrorDialog("Login failed.");
       } finally {
         // Hide the loading indicator once the operation is complete
         setState(() {
@@ -201,21 +203,23 @@ class _LoginScreenState extends State<LoginScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  alignment: Alignment.center,
-                  height: mediaQuery.size.width * 0.6,
-                  // width: mediaQuery.size.width * 0.5,
-                  decoration: const BoxDecoration(
-                    color: Colors.transparent,
-                    // borderRadius: BorderRadius.only(
-                    //     topLeft: Radius.circular(5),
-                    //     topRight: Radius.circular(5)),
-                  ),
-                  // margin: const EdgeInsets.only(left: 120, top: 20),
-                  child: ClipRect(
-                    child: Image.asset(
-                      'assets/image/icon/icon.png',
-                      fit: BoxFit.cover,
+                Center(
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: mediaQuery.size.width * 0.6,
+                    // width: mediaQuery.size.width * 0.5,
+                    decoration: const BoxDecoration(
+                      color: Colors.transparent,
+                      // borderRadius: BorderRadius.only(
+                      //     topLeft: Radius.circular(5),
+                      //     topRight: Radius.circular(5)),
+                    ),
+                    // margin: const EdgeInsets.only(left: 120, top: 20),
+                    child: ClipRect(
+                      child: Image.asset(
+                        'assets/image/icon/icon.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

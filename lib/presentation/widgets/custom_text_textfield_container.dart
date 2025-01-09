@@ -3,23 +3,44 @@ import 'package:flutter/material.dart';
 class CustomFieldInsideContainer extends StatelessWidget {
   const CustomFieldInsideContainer(
       {super.key,
-      this.icon,
       required this.labeltext,
-      required this.inputextController,
+      this.inputextController,
       required this.screenWidth,
       required this.screenHeight,
       this.maxLength,
-      this.onChanged});
+      this.isEditable = true,
+      this.onChanged,
+      required this.displayText,
+      this.accountGroupID,
+      this.schemeTransType,
+      required this.textFieldEnabled});
   final String labeltext;
-  final TextEditingController inputextController;
-  final IconData? icon;
+  final TextEditingController? inputextController;
   final int? maxLength;
   final double screenWidth;
   final double screenHeight;
   final Function(String)? onChanged;
+  final bool isEditable;
+  final bool textFieldEnabled;
+  final String displayText;
+  final int? accountGroupID; // Optional parameter for AccountGroupID
+  final int? schemeTransType; // Optional parameter for SchemeTransType
+
+  bool _isFieldEditable() {
+    // Logic to determine if the field should be editable based on AccountGroupID and SchemeTransType
+    if (accountGroupID == 2 && schemeTransType == 1) {
+      return labeltext != "Months/Days Due";
+    } else if (accountGroupID == 1) {
+      return labeltext != "Months/Days Due";
+    } else if (accountGroupID == 2) {
+      return labeltext != "Interest";
+    }
+    return isEditable;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool fieldEditable = _isFieldEditable();
     // Get screen size using MediaQuery
 
     return Column(
@@ -54,32 +75,48 @@ class CustomFieldInsideContainer extends StatelessWidget {
                   ),
                 ],
               ),
-              child: TextFormField(
-                onChanged: onChanged,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                controller: inputextController,
-                maxLength: maxLength,
-                // textAlign: TextAlign.end,
-                decoration: InputDecoration(
-                  counterText: '',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide(
-                      color: Colors.transparent,
-                      width: 1.0,
+              child: fieldEditable
+                  ? TextFormField(
+                      onChanged: onChanged,
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
+                      controller: inputextController,
+                      maxLength: maxLength,
+                      enabled: textFieldEnabled,
+                      textAlign: TextAlign.end,
+                      decoration: InputDecoration(
+                        counterText: '',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: const BorderSide(
+                            color: Colors.transparent,
+                            width: 1.0,
+                          ),
+                        ),
+                        // suffixIcon: Icon(icon),
+                        // contentPadding: const EdgeInsets.symmetric(
+                        //     horizontal: 8.0, vertical: 12.0),
+                      ),
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.04,
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          displayText,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.04,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  suffixIcon: Icon(icon),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 12.0),
-                ),
-                style: TextStyle(
-                  fontSize: screenWidth * 0.04,
-                ),
-              ),
             ),
           ],
         ),

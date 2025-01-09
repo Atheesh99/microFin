@@ -25,12 +25,14 @@ class MemberDetailsScreen extends StatefulWidget {
   State<MemberDetailsScreen> createState() => _MemberDetailsScreenState();
 }
 
-class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
+class _MemberDetailsScreenState extends State<MemberDetailsScreen>
+    with SingleTickerProviderStateMixin {
   String closingBalance = '0.00';
 
   // Controllers for editable fields
+  late TabController _tabController;
   final TextEditingController monthsDueController = TextEditingController();
-  final TextEditingController emitController = TextEditingController();
+  // final TextEditingController emitController = TextEditingController();
   final TextEditingController amountPaidController = TextEditingController();
   final TextEditingController interestController = TextEditingController();
   final TextEditingController otherAccountamountController =
@@ -55,12 +57,43 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   String? monthsDue;
   String? receipts;
   String? interest;
+  int? SchemeTransType;
+  int? AccountGroupID;
+  bool enableInterest = false;
+  bool enableMonthsDue = false;
+  bool enableAmountPaid = false;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+
+    // Add a listener to handle tab changes
+    _tabController.addListener(() {
+      if (_tabController.index == 1) {
+        // Clear data when the "Other Accounts" tab is selected
+        clearData();
+      }
+    });
     fetchDropdownData();
     fetchOtherAccountData();
+  }
+
+  void clearData() {
+    setState(() {
+      selectedValue = null; // Clear the selected dropdown value
+      emi = '';
+      monthsDue = '';
+      receipts = '';
+      interest = '';
+      formattedTotal = '0';
+      closingBalance = "0";
+      monthsDueController.clear();
+      amountPaidController.clear();
+      interestController.clear();
+      selectedAccountDetails = null;
+      otherAccountamountController.clear();
+    });
   }
 
   String responseText = "Fetching data...";
@@ -160,6 +193,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               'receipts': account['Receipts'],
               'interest': account['Interest'],
               'MemAccDetailID': account['MemAccDetailID'],
+              'AccountGroupID': account['AccountGroupID'],
+              'SchemeTransType': account['SchemeTransType'],
             };
           }).toList();
 
@@ -175,7 +210,6 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
 
   void calculateTotal() {
     // Parse the values from the controllers
-
     print(interestController.text);
     double amountPaid = double.tryParse(amountPaidController.text) ?? 0.0;
     double interest = double.tryParse(interestController.text) ?? 0.0;
@@ -196,6 +230,15 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     });
   }
 
+  void handleFieldState(String accountGroupID, String schemeTransType) {
+    if (accountGroupID == '2') {
+      interestController.text = '0';
+      if (schemeTransType == '1') {
+        monthsDueController.text = '';
+      }
+    }
+  }
+
   // Callback to update closingBalance
   void updateClosingBalance(String newBalance) {
     setState(() {
@@ -207,7 +250,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   void updateInstallmentDetails(Map<String, dynamic> accountDetails) {
     setState(() {
       monthsDueController.text = accountDetails['monthsDue'];
-      emitController.text = accountDetails['eMI'];
+      emi = accountDetails['eMI'];
       amountPaidController.text = accountDetails['receipts'];
       interestController.text =
           double.tryParse(accountDetails['interest'])!.truncate().toString();
@@ -219,10 +262,30 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   void dispose() {
     // Dispose controllers to avoid memory leaks
     monthsDueController.dispose();
-    emitController.dispose();
+    emi = '';
     amountPaidController.dispose();
     interestController.dispose();
+    _tabController.dispose();
     super.dispose();
+  }
+
+  // Function to show error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -300,8 +363,6 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             Container(
               width: double.infinity,
               height: screenHeight * 0.09,
-              // margin: EdgeInsets.all(screenWidth * 0.02),
-              // padding: EdgeInsets.all(screenWidth * 0.05),
               decoration: BoxDecoration(
                 boxShadow: kElevationToShadow[1],
                 color: const Color.fromARGB(255, 224, 225, 255),
@@ -321,6 +382,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               height: 50,
               child: AppBar(
                 bottom: TabBar(
+                  controller: _tabController,
                   indicator: BoxDecoration(
                     color: Colors.blue[300],
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -339,6 +401,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
             // create widgets for each tab bar here
             Expanded(
               child: TabBarView(
+                controller: _tabController,
                 children: [
                   Column(
                     children: [
@@ -417,9 +480,34 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                           selectedAccount['receipts'] ?? '0.00';
                                       interest =
                                           selectedAccount['interest'] ?? '0.00';
+
+                                      AccountGroupID = int.parse(
+                                          selectedAccount['AccountGroupID'] ??
+                                              "0.0");
+                                      SchemeTransType = int.parse(
+                                          selectedAccount['SchemeTransType'] ??
+                                              "0.0");
+
+                                      print(
+                                          "account group id - $AccountGroupID");
+                                      print(
+                                          "SchemeTransType id - $SchemeTransType");
+
                                       // Send the closing balance to the parent screen
 
                                       isOtherAccount = false;
+
+                                      if (AccountGroupID == 2) {
+                                        enableInterest = false;
+                                      } else if (AccountGroupID == 1) {
+                                        enableMonthsDue = false;
+                                        enableAmountPaid = true;
+                                        enableInterest = true;
+                                      } else if (AccountGroupID == 2 &&
+                                          SchemeTransType == 1) {
+                                        enableMonthsDue = false;
+                                        enableAmountPaid = true;
+                                      }
 
                                       setState(() {
                                         selectedAccountDetails =
@@ -459,7 +547,6 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                             left: screenWidth * 0.03,
                             right: screenWidth * 0.03,
                             bottom: screenWidth * 0.01),
-                        // margin: EdgeInsets.all(screenWidth * 0.02),
                         padding: EdgeInsets.all(screenWidth * 0.01),
                         decoration: BoxDecoration(
                             color: Colors.white,
@@ -477,6 +564,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                               height: screenHeight * 0.01,
                             ),
                             CustomFieldInsideContainer(
+                              displayText: '',
+                              textFieldEnabled: enableMonthsDue,
                               labeltext: "Months/Days Due",
                               inputextController: monthsDueController,
                               screenWidth: screenWidth,
@@ -484,14 +573,18 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                               maxLength: 3,
                             ),
                             CustomFieldInsideContainer(
+                              isEditable: false,
+                              displayText: emi ?? " ",
                               labeltext: " EMi",
-                              inputextController: emitController,
+                              textFieldEnabled: false,
                               screenWidth: screenWidth,
                               screenHeight: screenHeight,
-                              maxLength: 7,
+                              maxLength: 6,
                             ),
                             CustomFieldInsideContainer(
+                              displayText: '',
                               labeltext: "Amount Paid",
+                              textFieldEnabled: enableAmountPaid,
                               inputextController: amountPaidController,
                               screenWidth: screenWidth,
                               screenHeight: screenHeight,
@@ -503,7 +596,9 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                               },
                             ),
                             CustomFieldInsideContainer(
+                              displayText: '',
                               labeltext: "Interest",
+                              textFieldEnabled: enableInterest,
                               inputextController: interestController,
                               screenWidth: screenWidth,
                               screenHeight: screenHeight,
@@ -736,34 +831,38 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               addbutton: () {
                 if (selectedAccountDetails != null) {
                   if (isOtherAccount) {
-                    if (selectedAccountDetails != null &&
-                        otherAccountamountController.text.isNotEmpty) {
-                      if (accountAddedList.any((element) =>
-                          element['MemAccDetailID'] ==
-                          selectedAccountDetails!['AccountHeadID'])) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            duration: Duration(seconds: 2),
-                            content: Text('Account already added'),
-                          ),
-                        );
+                    if (selectedAccountDetails != null) {
+                      if (otherAccountamountController.text.isEmpty) {
+                        _showErrorDialog('Enter the amount.');
                       } else {
-                        setState(() {
-                          accountAddedList.add({
-                            'sDisplayName':
-                                selectedAccountDetails!['DisplayName'],
-                            'MemAccDetailID':
-                                selectedAccountDetails!['AccountHeadID'],
-                            'receipts': double.tryParse(
-                                    otherAccountamountController.text) ??
-                                0.0,
-                          });
+                        double enteredAmount = double.tryParse(
+                                otherAccountamountController.text) ??
+                            0.0;
+                        if (enteredAmount == 0) {
+                          _showErrorDialog('Amount cannot be zero.');
+                        } else {}
+                        if (accountAddedList.any((element) =>
+                            element['MemAccDetailID'] ==
+                            selectedAccountDetails!['AccountHeadID'])) {
+                          _showErrorDialog('Account is Alreay Added.');
+                        } else {
+                          setState(() {
+                            accountAddedList.add({
+                              'sDisplayName':
+                                  selectedAccountDetails!['DisplayName'],
+                              'MemAccDetailID':
+                                  selectedAccountDetails!['AccountHeadID'],
+                              'receipts': double.tryParse(
+                                      otherAccountamountController.text) ??
+                                  0.0,
+                            });
 
-                          // Clear the form after adding
-                          selectedDropValue = null;
-                          selectedAccountDetails = null;
-                          otherAccountamountController.clear();
-                        });
+                            // Clear the form after adding
+                            selectedDropValue = null;
+                            selectedAccountDetails = null;
+                            otherAccountamountController.clear();
+                          });
+                        }
                       }
                     }
                   } else {
@@ -771,16 +870,11 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                       if (accountAddedList.any((element) =>
                           element['MemAccDetailID'] ==
                           selectedAccountDetails!['MemAccDetailID'])) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            duration: Duration(seconds: 2),
-                            content: Text('Account already added'),
-                          ),
-                        );
+                        _showErrorDialog('Account Already Added');
                       } else {
                         accountAddedList.add(selectedAccountDetails!);
                         amountPaidController.clear();
-                        emitController.clear();
+                        emi = '';
                         interestController.clear();
                         monthsDueController.clear();
                         selectedValue = null;
@@ -795,12 +889,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                     // accountAddedList.add(selectedAccountDetails!);
                   }
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      duration: Duration(seconds: 2),
-                      content: Text('No items are selected'),
-                    ),
-                  );
+                  _showErrorDialog(' No Account is Selected');
                 }
               },
               nextButton: () {
@@ -814,12 +903,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                           ),
                         ),
                       )
-                    : ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          duration: Duration(seconds: 2),
-                          content: Text('No items are added'),
-                        ),
-                      );
+                    : _showErrorDialog('No items are selected');
                 // Navigator.of(context).push(
                 //   MaterialPageRoute(
                 //     builder: (context) => MemberDetailsFinalScreen(

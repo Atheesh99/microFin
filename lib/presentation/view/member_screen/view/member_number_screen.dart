@@ -173,7 +173,7 @@ class _MemberNumberState extends State<MemberNumber> {
             CustomBottomButtons(
               nextButton: () {
                 if (membershipFechedDetails == null) {
-                  _showErrorDialog("Member details not found.");
+                  _showErrorDialog(" Enter Membership Number.");
                 } else {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
@@ -307,6 +307,7 @@ class CustomBottomButtons extends StatefulWidget {
   final double screenHeight;
   final VoidCallback resetButton;
   final VoidCallback nextButton;
+
   final Map<String, dynamic> loginResponse;
 
   @override

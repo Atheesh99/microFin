@@ -38,6 +38,12 @@ dependencies:
   http: ^1.2.2
   crypto: ^3.0.6
   intl: ^0.20.1
+  flutter_launcher_icons: ^0.14.2
+ 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/image/icon/Mf logo-01.png"
 
 dev_dependencies:
   flutter_test:
