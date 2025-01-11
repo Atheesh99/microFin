@@ -10,7 +10,6 @@ class CustomFieldInsideContainer extends StatelessWidget {
       this.maxLength,
       this.isEditable = true,
       this.onChanged,
-      required this.displayText,
       this.accountGroupID,
       this.schemeTransType,
       required this.textFieldEnabled});
@@ -22,7 +21,6 @@ class CustomFieldInsideContainer extends StatelessWidget {
   final Function(String)? onChanged;
   final bool isEditable;
   final bool textFieldEnabled;
-  final String displayText;
   final int? accountGroupID; // Optional parameter for AccountGroupID
   final int? schemeTransType; // Optional parameter for SchemeTransType
 

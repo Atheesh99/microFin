@@ -86,6 +86,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
       interest = '';
       formattedTotal = '0';
       closingBalance = "0";
+      emitController.clear();
       monthsDueController.clear();
       amountPaidController.clear();
       interestController.clear();
@@ -237,7 +238,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
   void updateInstallmentDetails(Map<String, dynamic> accountDetails) {
     setState(() {
       monthsDueController.text = accountDetails['monthsDue'];
-      emi = accountDetails['eMI'];
+      emitController.text = accountDetails['eMI'];
       amountPaidController.text = accountDetails['receipts'];
       interestController.text = double.tryParse(accountDetails['interest'])!.truncate().toString();
       calculateTotal();
@@ -248,7 +249,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
   void dispose() {
     // Dispose controllers to avoid memory leaks
     monthsDueController.dispose();
-    emi = '';
+    emitController.dispose();
     amountPaidController.dispose();
     interestController.dispose();
     _tabController.dispose();
@@ -514,7 +515,6 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
                               height: screenHeight * 0.01,
                             ),
                             CustomFieldInsideContainer(
-                              displayText: '',
                               textFieldEnabled: enableMonthsDue,
                               labeltext: "Months/Days Due",
                               inputextController: monthsDueController,
@@ -524,16 +524,14 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
                             ),
                             CustomFieldInsideContainer(
                               isEditable: false,
-                              displayText: emi ?? " ",
                               labeltext: " EMi",
                               textFieldEnabled: false,
                               screenWidth: screenWidth,
-                              inputextController: controller,
+                              inputextController: emitController,
                               screenHeight: screenHeight,
                               maxLength: 6,
                             ),
                             CustomFieldInsideContainer(
-                              displayText: '',
                               labeltext: "Amount Paid",
                               textFieldEnabled: enableAmountPaid,
                               inputextController: amountPaidController,
@@ -547,7 +545,6 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
                               },
                             ),
                             CustomFieldInsideContainer(
-                              displayText: '',
                               labeltext: "Interest",
                               textFieldEnabled: enableInterest,
                               inputextController: interestController,
@@ -785,7 +782,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
                       } else {
                         accountAddedList.add(selectedAccountDetails!);
                         amountPaidController.clear();
-                        emi = '';
+                        emitController.clear();
                         interestController.clear();
                         monthsDueController.clear();
                         selectedValue = null;
