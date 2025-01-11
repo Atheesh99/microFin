@@ -69,8 +69,12 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
     // Add a listener to handle tab changes
     _tabController.addListener(() {
       if (_tabController.index == 1) {
+        print(_tabController.index);
         // Clear data when the "Other Accounts" tab is selected
         clearData();
+      } else if (_tabController.index == 0) {
+        selectedDropValue = null;
+        otherAccountamountController.clear();
       }
     });
     fetchDropdownData();
@@ -458,6 +462,9 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> with SingleTi
 
                                       if (AccountGroupID == 2) {
                                         enableInterest = false;
+                                      }
+                                      if (SchemeTransType == 2) {
+                                        enableMonthsDue = true;
                                       }
                                       if (AccountGroupID == 1) {
                                         enableMonthsDue = false;
