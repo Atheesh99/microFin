@@ -26,21 +26,8 @@ class CustomFieldInsideContainer extends StatelessWidget {
   final int? accountGroupID; // Optional parameter for AccountGroupID
   final int? schemeTransType; // Optional parameter for SchemeTransType
 
-  bool _isFieldEditable() {
-    // Logic to determine if the field should be editable based on AccountGroupID and SchemeTransType
-    if (accountGroupID == 2 && schemeTransType == 1) {
-      return labeltext != "Months/Days Due";
-    } else if (accountGroupID == 1) {
-      return labeltext != "Months/Days Due";
-    } else if (accountGroupID == 2) {
-      return labeltext != "Interest";
-    }
-    return isEditable;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final bool fieldEditable = _isFieldEditable();
     // Get screen size using MediaQuery
 
     return Column(
@@ -56,68 +43,65 @@ class CustomFieldInsideContainer extends StatelessWidget {
               width: screenHeight * 0.16,
               child: Text(
                 labeltext,
-                style: TextStyle(
-                    fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
+                style: TextStyle(fontSize: screenWidth * 0.037, fontWeight: FontWeight.w400),
               ),
             ),
             Container(
-              height: screenHeight * 0.05,
-              width: screenWidth * 0.45,
-              // margin: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.white,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black38,
-                    offset: Offset(0, 1),
-                    blurRadius: 2.0,
-                  ),
-                ],
-              ),
-              child: fieldEditable
-                  ? TextFormField(
-                      onChanged: onChanged,
-                      keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
-                      controller: inputextController,
-                      maxLength: maxLength,
-                      enabled: textFieldEnabled,
-                      textAlign: TextAlign.end,
-                      decoration: InputDecoration(
-                        counterText: '',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1.0,
-                          ),
-                        ),
-                        // suffixIcon: Icon(icon),
-                        // contentPadding: const EdgeInsets.symmetric(
-                        //     horizontal: 8.0, vertical: 12.0),
-                      ),
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          displayText,
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.04,
-                            color: Colors.black87,
-                          ),
-                        ),
+                height: screenHeight * 0.05,
+                width: screenWidth * 0.45,
+                // margin: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black38,
+                      offset: Offset(0, 1),
+                      blurRadius: 2.0,
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  onChanged: onChanged,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  controller: inputextController,
+                  maxLength: maxLength,
+                  enabled: textFieldEnabled,
+                  textAlign: TextAlign.end,
+                  decoration: InputDecoration(
+                    counterText: '',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide: const BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
                       ),
                     ),
-            ),
+                    // suffixIcon: Icon(icon),
+                    // contentPadding: const EdgeInsets.symmetric(
+                    //     horizontal: 8.0, vertical: 12.0),
+                  ),
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                  ),
+                )
+                // : Padding(
+                //     padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                //     child: Align(
+                //       alignment: Alignment.centerRight,
+                //       child: Text(
+                //         displayText,
+                //         style: TextStyle(
+                //           fontSize: screenWidth * 0.04,
+                //           color: Colors.black87,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                ),
           ],
         ),
       ],
