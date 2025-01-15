@@ -39,10 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Digest sha256Result = sha256.convert(bytes);
 
     // Convert the hash bytes to a hexadecimal string
-    return sha256Result.bytes
-        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-        .join()
-        .toUpperCase();
+    return sha256Result.bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join().toUpperCase();
   }
 
   Future<void> _login() async {
@@ -75,8 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       print("SHA-256 Hashed Password: $hashedPassword");
 
       // API endpoint URL
-      const String url =
-          'http://154.38.175.150:8090/api/users/validateMobileUser';
+      const String url = 'http://154.38.175.150:8090/api/users/validateMobileUser';
 
       // Prepare the request body
       final Map<String, String> requestBody = {
@@ -111,8 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           // Show an error message if the login failed
           _showErrorDialog("Invalid Username or Password.");
-          print(
-              "Login failed: ${response.statusCode} - ${response.reasonPhrase}");
+          print("Login failed: ${response.statusCode} - ${response.reasonPhrase}");
         }
       } on SocketException {
         _showErrorDialog("Please connect to the internet.");
@@ -155,8 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // backgroundColor: const Color.fromARGB(255, 244, 244, 244),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         backgroundColor: appbarColor,
         actions: [
           TextButton(
@@ -165,10 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Do you want to close the APP',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18)),
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -231,9 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     height: 300,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
                     child: Form(
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       key: _formKey,
@@ -331,25 +320,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                       passwordError = "Enter Password";
                                     }
 
-                                    if (usernameError != null ||
-                                        passwordError != null) {
+                                    if (usernameError != null || passwordError != null) {
                                       String errorMessage;
 
-                                      if (usernameError != null &&
-                                          passwordError != null) {
-                                        errorMessage =
-                                            "Invalid Username & Password";
+                                      if (usernameError != null && passwordError != null) {
+                                        errorMessage = "Invalid Username & Password";
                                       } else {
-                                        errorMessage =
-                                            usernameError ?? passwordError!;
+                                        errorMessage = usernameError ?? passwordError!;
                                       }
 
                                       showDialog(
                                         context: context,
                                         builder: (context) {
                                           return AlertDialog(
-                                            title:
-                                                const Text("Validation Error"),
+                                            title: const Text("Validation Error"),
                                             content: Text(errorMessage),
                                             actions: [
                                               TextButton(
